@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <content url="file://$MODULE_DIR$/NewBank">
+      <sourceFolder url="file://$MODULE_DIR$/NewBank/newbank/client" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/NewBank/newbank/server" isTestSource="false" />
+    </content>
+    <orderEntry type="jdk" jdkName="15" jdkType="JavaSDK" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>
