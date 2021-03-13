@@ -1,6 +1,8 @@
 package newbank.server;
 
 import java.util.HashMap;
+import java.util.ArrayList;
+import java.lang.*;
 
 public class NewBank {
 	
@@ -41,8 +43,10 @@ public class NewBank {
 	// commands from the NewBank customer are processed in this method
 	public synchronized String processRequest(CustomerID customer, String request) {
 		if(customers.containsKey(customer.getKey())) {
-			switch(request) {
+			String[] splitRequest = request.split(" ");
+			switch(splitRequest[0]) {
 			case "SHOWMYACCOUNTS" : return showMyAccounts(customer);
+			case "MOVE" : return move(customer, splitRequest);
 			default : return "FAIL";
 			}
 		}
@@ -53,4 +57,40 @@ public class NewBank {
 		return (customers.get(customer.getKey())).accountsToString();
 	}
 
+	private String move(CustomerID customer, String[] splitRequest){
+		// check there are 4 things in the request
+		if (splitRequest.length != 4){
+			return "FAIL";
+		}
+		// check both bank accounts exist for the customer
+		ArrayList<Account> customerAccounts = customers.get(customer.getKey()).getAccountList();
+		double amount = Double.parseDouble(splitRequest[1]);
+		//get the account objects (instead of the accountName)
+		ArrayList<Account> moveAccounts = new ArrayList<>();
+		for (int i = 0; i < customerAccounts.size(); i++) {
+			if (customerAccounts.get(i).getName().equals(splitRequest[2])) {
+				moveAccounts.add(customerAccounts.get(i));
+			}
+		}
+		for (int i = 0; i < customerAccounts.size(); i++){
+			if (customerAccounts.get(i).getName().equals(splitRequest[3])) {
+				moveAccounts.add(customerAccounts.get(i));
+			}
+		}
+		if (moveAccounts.size() != 2){ //check length of moveAccounts
+			return "FAIL";
+		}
+		Account fromAccount = moveAccounts.get(0);
+		Account toAccount = moveAccounts.get(1);
+		if (customerAccounts.contains(fromAccount) && customerAccounts.contains(toAccount)){
+			//check <From> account has enough money
+			if (fromAccount.getBalance() >= amount){
+				//update balance
+				fromAccount.removeMoney(amount);
+				toAccount.addMoney(amount);
+				return "SUCCESS";
+			}
+		}
+		return "FAIL";
+	}
 }
