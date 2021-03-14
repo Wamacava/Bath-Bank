@@ -18,8 +18,14 @@ public class Customer {
 		return s;
 	}
 
-	public void addAccount(Account account) {
-		accounts.add(account);		
+	public boolean addAccount(Account account) {
+		for (Account a: accounts){
+			if (a.getName().equals(account.getName())){
+				return false;
+			}
+		}
+		accounts.add(account);
+		return true;
 	}
 	public ArrayList<Account> getAccountList() { return accounts; }
 	public Boolean move(Account fromAccount, Account toAccount, double amount){
