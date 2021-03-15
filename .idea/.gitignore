@@ -6,3 +6,12 @@
 /dataSources.local.xml
 # Editor-based HTTP Client requests
 /httpRequests/
+# files to be ignored
+*.class
+.idea/NewBank.iml
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
+
+
+
