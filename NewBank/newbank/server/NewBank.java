@@ -1,6 +1,8 @@
 package newbank.server;
 
 import java.util.HashMap;
+import java.util.ArrayList;
+import java.lang.*;
 
 public class NewBank {
 	
@@ -15,6 +17,7 @@ public class NewBank {
 	private void addTestData() {
 		Customer bhagy = new Customer();
 		bhagy.addAccount(new Account("Main", 1000.0));
+		bhagy.addAccount(new Account("Savings", 100.0));
 		customers.put("Bhagy", bhagy);
 		
 		Customer christina = new Customer();
@@ -40,8 +43,10 @@ public class NewBank {
 	// commands from the NewBank customer are processed in this method
 	public synchronized String processRequest(CustomerID customer, String request) {
 		if(customers.containsKey(customer.getKey())) {
-			switch(request) {
+			String[] splitRequest = request.split(" ");
+			switch(splitRequest[0]) {
 			case "SHOWMYACCOUNTS" : return showMyAccounts(customer);
+			case "MOVE" : return moveRequest(customer, splitRequest);
 			default : return "FAIL";
 			}
 		}
@@ -51,5 +56,43 @@ public class NewBank {
 	private String showMyAccounts(CustomerID customer) {
 		return (customers.get(customer.getKey())).accountsToString();
 	}
-
+	private String moveRequest(CustomerID customer, String[] splitRequest) {
+		// check there are 4 things in the request
+		if (splitRequest.length != 4) {
+			return "FAIL";
+		}
+		// check both bank accounts exist for the customer
+		ArrayList<Account> customerAccounts = customers.get(customer.getKey()).getAccountList();
+		//check the second input in MOVE request is a number
+		try {
+			Double.parseDouble(splitRequest[1]);
+		} catch (NumberFormatException e) {
+			return "FAIL";
+		}
+		double amount = Double.parseDouble(splitRequest[1]);
+		//get the account objects (instead of the accountName)
+		ArrayList<Account> moveAccounts = new ArrayList<>();
+		for (int i = 0; i < customerAccounts.size(); i++) {
+			if (customerAccounts.get(i).getName().equals(splitRequest[2])) {
+				moveAccounts.add(customerAccounts.get(i));
+			}
+		}
+		for (int i = 0; i < customerAccounts.size(); i++) {
+			if (customerAccounts.get(i).getName().equals(splitRequest[3])) {
+				moveAccounts.add(customerAccounts.get(i));
+			}
+		}
+		if (moveAccounts.size() != 2) { //check length of moveAccounts
+			return "FAIL";
+		}
+		Account fromAccount = moveAccounts.get(0);
+		Account toAccount = moveAccounts.get(1);
+		if (customerAccounts.contains(fromAccount) && customerAccounts.contains(toAccount)) {
+			if (customers.get(customer.getKey()).move(fromAccount, toAccount, amount)) {
+				return "SUCCESS";
+			}
+			return "FAIL";
+		}
+	return "FAIL";
+	}
 }
