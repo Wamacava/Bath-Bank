@@ -64,6 +64,13 @@ public class NewBank {
 		}
 		// check both bank accounts exist for the customer
 		ArrayList<Account> customerAccounts = customers.get(customer.getKey()).getAccountList();
+		//check the second input in MOVE request is a number
+		try {
+			Double.parseDouble(splitRequest[1]);
+		}
+		catch (NumberFormatException e) {
+			return "FAIL";
+		}
 		double amount = Double.parseDouble(splitRequest[1]);
 		//get the account objects (instead of the accountName)
 		ArrayList<Account> moveAccounts = new ArrayList<>();
@@ -83,8 +90,8 @@ public class NewBank {
 		Account fromAccount = moveAccounts.get(0);
 		Account toAccount = moveAccounts.get(1);
 		if (customerAccounts.contains(fromAccount) && customerAccounts.contains(toAccount)){
-			//check <From> account has enough money
-			if (fromAccount.getBalance() >= amount){
+			//check the <From> account has enough money
+			if (fromAccount.getBalance() >= amount) {
 				//update balance
 				fromAccount.removeMoney(amount);
 				toAccount.addMoney(amount);
