@@ -8,10 +8,9 @@
 /httpRequests/
 # files to be ignored
 *.class
+/production/NewBank/newbank/server/.class
+production/NewBank/newbank/client/.class
 .idea/NewBank.iml
 .idea/misc.xml
 .idea/modules.xml
 .idea/vcs.xml
-
-
-
