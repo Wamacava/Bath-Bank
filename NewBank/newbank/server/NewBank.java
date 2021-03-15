@@ -46,7 +46,7 @@ public class NewBank {
 			String[] splitRequest = request.split(" ");
 			switch(splitRequest[0]) {
 			case "SHOWMYACCOUNTS" : return showMyAccounts(customer);
-			case "MOVE" : return move(customer, splitRequest);
+			case "MOVE" : return moveRequest(customer, splitRequest);
 			default : return "FAIL";
 			}
 		}
@@ -56,10 +56,9 @@ public class NewBank {
 	private String showMyAccounts(CustomerID customer) {
 		return (customers.get(customer.getKey())).accountsToString();
 	}
-
-	private String move(CustomerID customer, String[] splitRequest){
+	private String moveRequest(CustomerID customer, String[] splitRequest) {
 		// check there are 4 things in the request
-		if (splitRequest.length != 4){
+		if (splitRequest.length != 4) {
 			return "FAIL";
 		}
 		// check both bank accounts exist for the customer
@@ -67,8 +66,7 @@ public class NewBank {
 		//check the second input in MOVE request is a number
 		try {
 			Double.parseDouble(splitRequest[1]);
-		}
-		catch (NumberFormatException e) {
+		} catch (NumberFormatException e) {
 			return "FAIL";
 		}
 		double amount = Double.parseDouble(splitRequest[1]);
@@ -79,25 +77,22 @@ public class NewBank {
 				moveAccounts.add(customerAccounts.get(i));
 			}
 		}
-		for (int i = 0; i < customerAccounts.size(); i++){
+		for (int i = 0; i < customerAccounts.size(); i++) {
 			if (customerAccounts.get(i).getName().equals(splitRequest[3])) {
 				moveAccounts.add(customerAccounts.get(i));
 			}
 		}
-		if (moveAccounts.size() != 2){ //check length of moveAccounts
+		if (moveAccounts.size() != 2) { //check length of moveAccounts
 			return "FAIL";
 		}
 		Account fromAccount = moveAccounts.get(0);
 		Account toAccount = moveAccounts.get(1);
-		if (customerAccounts.contains(fromAccount) && customerAccounts.contains(toAccount)){
-			//check the <From> account has enough money
-			if (fromAccount.getBalance() >= amount) {
-				//update balance
-				fromAccount.removeMoney(amount);
-				toAccount.addMoney(amount);
+		if (customerAccounts.contains(fromAccount) && customerAccounts.contains(toAccount)) {
+			if (customers.get(customer.getKey()).move(fromAccount, toAccount, amount)) {
 				return "SUCCESS";
 			}
+			return "FAIL";
 		}
-		return "FAIL";
+	return "FAIL";
 	}
 }

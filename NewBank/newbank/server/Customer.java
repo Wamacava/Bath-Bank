@@ -22,4 +22,14 @@ public class Customer {
 		accounts.add(account);		
 	}
 	public ArrayList<Account> getAccountList() { return accounts; }
+	public Boolean move(Account fromAccount, Account toAccount, double amount){
+		//check the <From> account has enough money
+		if (fromAccount.getBalance() >= amount) {
+			//update balance
+			fromAccount.removeMoney(amount);
+			toAccount.addMoney(amount);
+			return true;
+		}
+	return false;
+	}
 }
