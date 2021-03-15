@@ -7,10 +7,7 @@
 # Editor-based HTTP Client requests
 /httpRequests/
 # files to be ignored
-*.class
-/production/NewBank/newbank/server/.class
-/production/NewBank/newbank/client/.class
-/.idea/NewBank.iml
-/.idea/misc.xml
-/.idea/modules.xml
-/.idea/vcs.xml
+/NewBank.iml
+/misc.xml
+/modules.xml
+/vcs.xml
