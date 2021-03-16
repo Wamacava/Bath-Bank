@@ -5,34 +5,34 @@ import java.util.ArrayList;
 import java.lang.*;
 
 public class NewBank {
-	
+
 	private static final NewBank bank = new NewBank();
 	private HashMap<String,Customer> customers;
-	
+
 	private NewBank() {
 		customers = new HashMap<>();
 		addTestData();
 	}
-	
+
 	private void addTestData() {
 		Customer bhagy = new Customer();
 		bhagy.addAccount(new Account("Main", 1000.0));
 		bhagy.addAccount(new Account("Savings", 100.0));
 		customers.put("Bhagy", bhagy);
-		
+
 		Customer christina = new Customer();
 		christina.addAccount(new Account("Savings", 1500.0));
 		customers.put("Christina", christina);
-		
+
 		Customer john = new Customer();
 		john.addAccount(new Account("Checking", 250.0));
 		customers.put("John", john);
 	}
-	
+
 	public static NewBank getBank() {
 		return bank;
 	}
-	
+
 	public synchronized CustomerID checkLogInDetails(String userName, String password) {
 		if(customers.containsKey(userName)) {
 			return new CustomerID(userName);
@@ -47,12 +47,24 @@ public class NewBank {
 			switch(splitRequest[0]) {
 			case "SHOWMYACCOUNTS" : return showMyAccounts(customer);
 			case "MOVE" : return moveRequest(customer, splitRequest);
+			case "NEWACCOUNT" : return newAccount(customer, splitRequest);
 			default : return "FAIL";
 			}
 		}
 		return "FAIL";
 	}
-	
+    private String newAccount(CustomerID customerId, String[] splitRequest) {
+        // check there are 2 things in the request
+        if (splitRequest.length != 2){
+            return "FAIL";
+        }
+        Account account = new Account(splitRequest[1], 0.0);
+        Customer customer = customers.get(customerId.getKey());
+        if (customer.addAccount(account)){
+			return "SUCCESS";
+		}
+        return "FAIL";
+    }
 	private String showMyAccounts(CustomerID customer) {
 		return (customers.get(customer.getKey())).accountsToString();
 	}
