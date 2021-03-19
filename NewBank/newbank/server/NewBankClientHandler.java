@@ -6,24 +6,24 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-public class NewBankClientHandler extends Thread{
-	
-	private NewBank bank;
-	private BufferedReader in;
-	private PrintWriter out;
-	
-	
-	public NewBankClientHandler(Socket s) throws IOException {
-		bank = NewBank.getBank();
-		in = new BufferedReader(new InputStreamReader(s.getInputStream()));
-		out = new PrintWriter(s.getOutputStream(), true);
-	}
-	
-	public void run() {
-		// keep getting requests from the client and processing them
-		try {
-		    // repeat checkLoginDetails until valid login entered
-            while(true) {
+public class NewBankClientHandler extends Thread {
+
+    private NewBank bank;
+    private BufferedReader in;
+    private PrintWriter out;
+
+
+    public NewBankClientHandler(Socket s) throws IOException {
+        bank = NewBank.getBank();
+        in = new BufferedReader(new InputStreamReader(s.getInputStream()));
+        out = new PrintWriter(s.getOutputStream(), true);
+    }
+
+    public void run() {
+        // keep getting requests from the client and processing them
+        try {
+            // repeat checkLoginDetails until valid login entered
+            while (true) {
                 // ask for username
                 out.println("Enter Username");
                 String userName = in.readLine();
@@ -46,18 +46,17 @@ public class NewBankClientHandler extends Thread{
                     out.println("Log In Failed; Please Retry");
                 }
             }
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		finally {
-			try {
-				in.close();
-				out.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-				Thread.currentThread().interrupt();
-			}
-		}
-	}
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                in.close();
+                out.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
 
 }
