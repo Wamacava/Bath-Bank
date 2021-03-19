@@ -54,10 +54,21 @@ public class NewBank {
                     return moveRequest(customer, splitRequest);
                 case "NEWACCOUNT":
                     return newAccount(customer, splitRequest);
+                case "PAY":
+                    return payRequest(customer, splitRequest);
                 default:
                     return "FAIL";
             }
         }
+        return "FAIL";
+    }
+
+    private String payRequest(CustomerID customerId, String[] splitRequest) {
+        // check there are 2 things in the request
+        if (splitRequest.length != 3) {
+            return "FAIL";
+        }
+
         return "FAIL";
     }
 
