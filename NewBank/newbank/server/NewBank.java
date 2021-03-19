@@ -20,10 +20,12 @@ public class NewBank {
         customers.put("Bhagy", bhagy);
 
         Customer christina = new Customer("admin");
+        christina.addAccount(new Account("Main", 1500.0));
         christina.addAccount(new Account("Savings", 1500.0));
         customers.put("Christina", christina);
 
         Customer john = new Customer("abcd");
+        john.addAccount(new Account("Main", 250.0));
         john.addAccount(new Account("Checking", 250.0));
         customers.put("John", john);
     }
@@ -113,20 +115,40 @@ public class NewBank {
             return "FAIL";
         }
 
-        // 1. find first customer
-
+        // 1. get first customer
+        // get first customer
+        Customer fromCustomer = customers.get(customerId.getKey());
         // 2. find account in first customer
+        Account fromAccount = fromCustomer.getAccount("Main");
 
         // 3. find second customer
+        String toCustomerString = splitRequest[1];
+        if (!customers.containsKey(toCustomerString)) {
+          return "FAIL";
+        }
+        Customer toCustomer = customers.get(toCustomerString);
 
         // 4. find account of second customer
+        Account toAccount = toCustomer.getAccount("Main");
 
         // 5. if all OK, remove money from first account
+        // convert third argument to double, return fail if not a number
+        double amount;
+        try {
+            amount = Double.parseDouble(splitRequest[2]);
+        } catch (NumberFormatException e) {
+            // amount in invalid format - not a number
+            return "FAIL";
+        }
+        if (!fromAccount.removeMoney(amount)){
+            return "FAIL";
+        }
 
         // 6. if true returned - add money to the second account
+        toAccount.addMoney(amount);
 
         // 7. return "SUCCESS"
 
-        return "FAIL";
+        return "SUCCESS";
     }
 }
