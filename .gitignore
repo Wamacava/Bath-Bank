@@ -1,3 +1,9 @@
 *.class
-NewBank/.idea/
+.idea/
 NewBank/NewBank.iml
+NewBank/.project
+NewBank/.classpath
+NewBank/newbank/client/.DS_Store
+NewBank/newbank/server/.DS_Store
+__MACOSX
+production/
