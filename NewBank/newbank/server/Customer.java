@@ -31,6 +31,21 @@ public class Customer {
         return true;
     }
 
+    /**
+     * Function to get account with a given name
+     *
+     * @param accountName string
+     * @return if account with given name exists, return this account. Return null otherwise
+     */
+    public Account getAccount(String accountName) {
+        for (int i = 0; i < accounts.size(); i++) {
+            if (accounts.get(i).getName().equals(accountName)) {
+                return accounts.get(i);
+            }
+        }
+        return null;
+    }
+
     public boolean checkPassword(String password) {
         return this.password.equals(password);
     }
@@ -49,4 +64,5 @@ public class Customer {
         }
         return false;
     }
+
 }

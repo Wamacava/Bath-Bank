@@ -100,20 +100,14 @@ public class NewBank {
         ArrayList<Account> customerAccounts = customer.getAccountList();
 
         //get the account objects (instead of the accountName)
-        Account fromAccount = null;
-        Account toAccount = null;
+        String fromAccountString = splitRequest[2];
+        Account fromAccount;
+        String toAccountString = splitRequest[3];
+        Account toAccount;
 
-        for (int i = 0; i < customerAccounts.size(); i++) {
-            if (customerAccounts.get(i).getName().equals(splitRequest[2])) {
-                fromAccount = customerAccounts.get(i);
-            }
-        }
+        fromAccount = customer.getAccount(fromAccountString);
+        toAccount = customer.getAccount(toAccountString);
 
-        for (int i = 0; i < customerAccounts.size(); i++) {
-            if (customerAccounts.get(i).getName().equals(splitRequest[3])) {
-                toAccount = customerAccounts.get(i);
-            }
-        }
         if (fromAccount == null || toAccount == null) { //check length of moveAccounts
             return "FAIL";
         }
