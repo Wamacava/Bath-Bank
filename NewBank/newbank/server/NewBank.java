@@ -63,15 +63,6 @@ public class NewBank {
         return "FAIL";
     }
 
-    private String payRequest(CustomerID customerId, String[] splitRequest) {
-        // check there are 2 things in the request
-        if (splitRequest.length != 3) {
-            return "FAIL";
-        }
-
-        return "FAIL";
-    }
-
     private String newAccount(CustomerID customerId, String[] splitRequest) {
         // check there are 2 things in the request
         if (splitRequest.length != 2) {
@@ -89,43 +80,57 @@ public class NewBank {
         return (customers.get(customer.getKey())).accountsToString();
     }
 
-    private String moveRequest(CustomerID customer, String[] splitRequest) {
+    private String moveRequest(CustomerID customerId, String[] splitRequest) {
         // check there are 4 things in the request
         if (splitRequest.length != 4) {
             return "FAIL";
         }
-        // check both bank accounts exist for the customer
-        ArrayList<Account> customerAccounts = customers.get(customer.getKey()).getAccountList();
+
         //check the second input in MOVE request is a number
+        double amount;
         try {
-            Double.parseDouble(splitRequest[1]);
+            amount = Double.parseDouble(splitRequest[1]);
         } catch (NumberFormatException e) {
+            // amount in invalid format - not a number
             return "FAIL";
         }
-        double amount = Double.parseDouble(splitRequest[1]);
+
+        // check both bank accounts exist for the customer
+        Customer customer = customers.get(customerId.getKey());
+        ArrayList<Account> customerAccounts = customer.getAccountList();
+
         //get the account objects (instead of the accountName)
-        ArrayList<Account> moveAccounts = new ArrayList<>();
+        Account fromAccount = null;
+        Account toAccount = null;
+
         for (int i = 0; i < customerAccounts.size(); i++) {
             if (customerAccounts.get(i).getName().equals(splitRequest[2])) {
-                moveAccounts.add(customerAccounts.get(i));
+                fromAccount = customerAccounts.get(i);
             }
         }
+
         for (int i = 0; i < customerAccounts.size(); i++) {
             if (customerAccounts.get(i).getName().equals(splitRequest[3])) {
-                moveAccounts.add(customerAccounts.get(i));
+                toAccount = customerAccounts.get(i);
             }
         }
-        if (moveAccounts.size() != 2) { //check length of moveAccounts
+        if (fromAccount == null || toAccount == null) { //check length of moveAccounts
             return "FAIL";
         }
-        Account fromAccount = moveAccounts.get(0);
-        Account toAccount = moveAccounts.get(1);
-        if (customerAccounts.contains(fromAccount) && customerAccounts.contains(toAccount)) {
-            if (customers.get(customer.getKey()).move(fromAccount, toAccount, amount)) {
-                return "SUCCESS";
-            }
+
+        if (customer.move(fromAccount, toAccount, amount)) {
+            return "SUCCESS";
+        }
+
+        return "FAIL";
+    }
+
+    private String payRequest(CustomerID customerId, String[] splitRequest) {
+        // check there are 2 things in the request
+        if (splitRequest.length != 3) {
             return "FAIL";
         }
+
         return "FAIL";
     }
 }
