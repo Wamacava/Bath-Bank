@@ -1,7 +1,6 @@
 package newbank.server;
 
 import java.util.HashMap;
-import java.util.ArrayList;
 import java.lang.*;
 
 public class NewBank {
@@ -86,7 +85,7 @@ public class NewBank {
             return "FAIL";
         }
 
-        //check the second input in MOVE request is a number
+        // convert second argument to double, return fail if not a number
         double amount;
         try {
             amount = Double.parseDouble(splitRequest[1]);
@@ -95,27 +94,16 @@ public class NewBank {
             return "FAIL";
         }
 
-        // check both bank accounts exist for the customer
+        // find the correct customer object
         Customer customer = customers.get(customerId.getKey());
-        ArrayList<Account> customerAccounts = customer.getAccountList();
 
-        //get the account objects (instead of the accountName)
         String fromAccountString = splitRequest[2];
-        Account fromAccount;
         String toAccountString = splitRequest[3];
-        Account toAccount;
 
-        fromAccount = customer.getAccount(fromAccountString);
-        toAccount = customer.getAccount(toAccountString);
-
-        if (fromAccount == null || toAccount == null) { //check length of moveAccounts
-            return "FAIL";
-        }
-
-        if (customer.move(fromAccount, toAccount, amount)) {
+        // call move function in customer object
+        if (customer.move(fromAccountString, toAccountString, amount)) {
             return "SUCCESS";
         }
-
         return "FAIL";
     }
 

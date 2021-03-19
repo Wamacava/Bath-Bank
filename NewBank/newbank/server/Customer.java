@@ -50,11 +50,19 @@ public class Customer {
         return this.password.equals(password);
     }
 
-    public ArrayList<Account> getAccountList() {
-        return accounts;
-    }
+    // No one should have access to account outside this class
+//    public ArrayList<Account> getAccountList() {
+//        return accounts;
+//    }
 
-    public Boolean move(Account fromAccount, Account toAccount, double amount) {
+    public Boolean move(String fromAccountString, String toAccountString, double amount) {
+        Account fromAccount = this.getAccount(fromAccountString);
+        Account toAccount = this.getAccount(toAccountString);
+
+        if (fromAccount == null || toAccount == null) { //check length of moveAccounts
+            return false;
+        }
+
         //check the <From> account has enough money
         if (fromAccount.getBalance() >= amount) {
             //update balance
