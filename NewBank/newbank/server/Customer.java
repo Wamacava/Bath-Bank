@@ -38,9 +38,9 @@ public class Customer {
      * @return if account with given name exists, return this account. Return null otherwise
      */
     public Account getAccount(String accountName) {
-        for (int i = 0; i < accounts.size(); i++) {
-            if (accounts.get(i).getName().equals(accountName)) {
-                return accounts.get(i);
+        for (Account account : accounts) {
+            if (account.getName().equals(accountName)) {
+                return account;
             }
         }
         return null;
