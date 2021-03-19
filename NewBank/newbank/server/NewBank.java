@@ -113,6 +113,20 @@ public class NewBank {
             return "FAIL";
         }
 
+        // 1. find first customer
+
+        // 2. find account in first customer
+
+        // 3. find second customer
+
+        // 4. find account of second customer
+
+        // 5. if all OK, remove money from first account
+
+        // 6. if true returned - add money to the second account
+
+        // 7. return "SUCCESS"
+
         return "FAIL";
     }
 }

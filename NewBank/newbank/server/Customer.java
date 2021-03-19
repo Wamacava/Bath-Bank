@@ -63,10 +63,10 @@ public class Customer {
             return false;
         }
 
-        //check the <From> account has enough money
-        if (fromAccount.getBalance() >= amount) {
+        // try to remove money from <From> account has enough money
+        // and add to <To> account if successful
+        if (fromAccount.removeMoney(amount)) {
             //update balance
-            fromAccount.removeMoney(amount);
             toAccount.addMoney(amount);
             return true;
         }
