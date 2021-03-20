@@ -115,24 +115,27 @@ public class NewBank {
             return "FAIL";
         }
 
-        // 1. get first customer
-        // get first customer
-        Customer fromCustomer = customers.get(customerId.getKey());
-        // 2. find account in first customer
-        Account fromAccount = fromCustomer.getAccount("Main");
+        // Current implementation only transfer money from Main to Main account
+        // In the future we need to allow user to specify from and to account name
+        String fromAccountName = "Main";
+        String toAccountName = "Main";
 
-        // 3. find second customer
+        // 1. Get first customer
+        Customer fromCustomer = customers.get(customerId.getKey());
+        // 2. Find account of first customer
+        Account fromAccount = fromCustomer.getAccount(fromAccountName);
+
+        // 3. Find second customer
         String toCustomerString = splitRequest[1];
         if (!customers.containsKey(toCustomerString)) {
-          return "FAIL";
+            return "FAIL";
         }
         Customer toCustomer = customers.get(toCustomerString);
 
-        // 4. find account of second customer
-        Account toAccount = toCustomer.getAccount("Main");
+        // 4. Find account of second customer
+        Account toAccount = toCustomer.getAccount(toAccountName);
 
-        // 5. if all OK, remove money from first account
-        // convert third argument to double, return fail if not a number
+        // 5. Convert third argument to double, return fail if not a number
         double amount;
         try {
             amount = Double.parseDouble(splitRequest[2]);
@@ -140,15 +143,16 @@ public class NewBank {
             // amount in invalid format - not a number
             return "FAIL";
         }
-        if (!fromAccount.removeMoney(amount)){
+
+        // 6. If all OK, try to remove money from first account
+        if (!fromAccount.removeMoney(amount)) {
             return "FAIL";
         }
 
-        // 6. if true returned - add money to the second account
+        // 7. If true returned - add money to the second account
         toAccount.addMoney(amount);
 
-        // 7. return "SUCCESS"
-
+        // 8. return "SUCCESS"
         return "SUCCESS";
     }
 }
