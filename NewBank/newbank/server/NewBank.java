@@ -144,6 +144,10 @@ public class NewBank {
             return "FAIL";
         }
 
+        if (amount <= 0) {
+            return "FAIL";
+        }
+
         // 6. If all OK, try to remove money from first account
         if (!fromAccount.removeMoney(amount)) {
             return "FAIL";

@@ -29,10 +29,14 @@ public class Account {
 
     /**
      * Remove money from the account. Check if the account has enough money
+     *
      * @param amount
      * @return true if money was removed, fail if there was not enough money
      */
     public boolean removeMoney(double amount) {
+        if (amount <= 0) {
+            return false;
+        }
         if (currentBalance + possibleDebt >= amount) {
             this.currentBalance -= amount;
             return true;

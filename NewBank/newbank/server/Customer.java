@@ -59,6 +59,10 @@ public class Customer {
         Account fromAccount = this.getAccount(fromAccountString);
         Account toAccount = this.getAccount(toAccountString);
 
+        if (amount <= 0) {
+            return false;
+        }
+
         if (fromAccount == null || toAccount == null) { //check length of moveAccounts
             return false;
         }
