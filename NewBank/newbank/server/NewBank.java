@@ -1,7 +1,6 @@
 package newbank.server;
 
 import java.util.HashMap;
-import java.util.ArrayList;
 import java.lang.*;
 
 public class NewBank {
@@ -21,10 +20,12 @@ public class NewBank {
         customers.put("Bhagy", bhagy);
 
         Customer christina = new Customer("admin");
+        christina.addAccount(new Account("Main", 1500.0));
         christina.addAccount(new Account("Savings", 1500.0));
         customers.put("Christina", christina);
 
         Customer john = new Customer("abcd");
+        john.addAccount(new Account("Main", 250.0));
         john.addAccount(new Account("Checking", 250.0));
         customers.put("John", john);
     }
@@ -54,6 +55,8 @@ public class NewBank {
                     return moveRequest(customer, splitRequest);
                 case "NEWACCOUNT":
                     return newAccount(customer, splitRequest);
+                case "PAY":
+                    return payRequest(customer, splitRequest);
                 default:
                     return "FAIL";
             }
@@ -78,43 +81,82 @@ public class NewBank {
         return (customers.get(customer.getKey())).accountsToString();
     }
 
-    private String moveRequest(CustomerID customer, String[] splitRequest) {
+    private String moveRequest(CustomerID customerId, String[] splitRequest) {
         // check there are 4 things in the request
         if (splitRequest.length != 4) {
             return "FAIL";
         }
-        // check both bank accounts exist for the customer
-        ArrayList<Account> customerAccounts = customers.get(customer.getKey()).getAccountList();
-        //check the second input in MOVE request is a number
+
+        // convert second argument to double, return fail if not a number
+        double amount;
         try {
-            Double.parseDouble(splitRequest[1]);
+            amount = Double.parseDouble(splitRequest[1]);
         } catch (NumberFormatException e) {
+            // amount in invalid format - not a number
             return "FAIL";
         }
-        double amount = Double.parseDouble(splitRequest[1]);
-        //get the account objects (instead of the accountName)
-        ArrayList<Account> moveAccounts = new ArrayList<>();
-        for (int i = 0; i < customerAccounts.size(); i++) {
-            if (customerAccounts.get(i).getName().equals(splitRequest[2])) {
-                moveAccounts.add(customerAccounts.get(i));
-            }
-        }
-        for (int i = 0; i < customerAccounts.size(); i++) {
-            if (customerAccounts.get(i).getName().equals(splitRequest[3])) {
-                moveAccounts.add(customerAccounts.get(i));
-            }
-        }
-        if (moveAccounts.size() != 2) { //check length of moveAccounts
-            return "FAIL";
-        }
-        Account fromAccount = moveAccounts.get(0);
-        Account toAccount = moveAccounts.get(1);
-        if (customerAccounts.contains(fromAccount) && customerAccounts.contains(toAccount)) {
-            if (customers.get(customer.getKey()).move(fromAccount, toAccount, amount)) {
-                return "SUCCESS";
-            }
-            return "FAIL";
+
+        // find the correct customer object
+        Customer customer = customers.get(customerId.getKey());
+
+        String fromAccountString = splitRequest[2];
+        String toAccountString = splitRequest[3];
+
+        // call move function in customer object
+        if (customer.move(fromAccountString, toAccountString, amount)) {
+            return "SUCCESS";
         }
         return "FAIL";
+    }
+
+    private String payRequest(CustomerID customerId, String[] splitRequest) {
+        // check there are 2 things in the request
+        if (splitRequest.length != 3) {
+            return "FAIL";
+        }
+
+        // Current implementation only transfer money from Main to Main account
+        // In the future we need to allow user to specify from and to account name
+        String fromAccountName = "Main";
+        String toAccountName = "Main";
+
+        // 1. Get first customer
+        Customer fromCustomer = customers.get(customerId.getKey());
+        // 2. Find account of first customer
+        Account fromAccount = fromCustomer.getAccount(fromAccountName);
+
+        // 3. Find second customer
+        String toCustomerString = splitRequest[1];
+        if (!customers.containsKey(toCustomerString)) {
+            return "FAIL";
+        }
+        Customer toCustomer = customers.get(toCustomerString);
+
+        // 4. Find account of second customer
+        Account toAccount = toCustomer.getAccount(toAccountName);
+
+        // 5. Convert third argument to double, return fail if not a number
+        double amount;
+        try {
+            amount = Double.parseDouble(splitRequest[2]);
+        } catch (NumberFormatException e) {
+            // amount in invalid format - not a number
+            return "FAIL";
+        }
+
+        if (amount <= 0) {
+            return "FAIL";
+        }
+
+        // 6. If all OK, try to remove money from first account
+        if (!fromAccount.removeMoney(amount)) {
+            return "FAIL";
+        }
+
+        // 7. If true returned - add money to the second account
+        toAccount.addMoney(amount);
+
+        // 8. return "SUCCESS"
+        return "SUCCESS";
     }
 }
