@@ -41,19 +41,21 @@ public class NewBankClientHandler extends Thread {
                             + "\n\tNEWACCOUNT <Name>"
                             + "\n\tMOVE <Amount> <From> <To>"
                             + "\n\tPAY <Name> <Amount>"
+                            + "\n\tLOGOUT"
                             + "\nWhat do you want to do?");
-                    while (true) {
+                    RequestResult result = new RequestResult();
+                    while (result.continueProcessing) {
                         String request = in.readLine();
                         System.out.println("Request from " + customer.getKey());
-                        String response = bank.processRequest(customer, request);
-                        out.println(response);
+                        result = bank.processRequest(customer, request);
+                        out.println(result.response);
+
                     }
                 } else {
                     out.println("Log In Failed; Please Retry");
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
         } finally {
             try {
                 in.close();

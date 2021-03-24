@@ -45,23 +45,25 @@ public class NewBank {
     }
 
     // commands from the NewBank customer are processed in this method
-    public synchronized String processRequest(CustomerID customer, String request) {
+    public synchronized RequestResult processRequest(CustomerID customer, String request) {
         if (customers.containsKey(customer.getKey())) {
             String[] splitRequest = request.split(" ");
             switch (splitRequest[0]) {
                 case "SHOWMYACCOUNTS":
-                    return showMyAccounts(customer);
+                    return new RequestResult(showMyAccounts(customer), true);
                 case "MOVE":
-                    return moveRequest(customer, splitRequest);
+                    return new RequestResult(moveRequest(customer, splitRequest), true);
                 case "NEWACCOUNT":
-                    return newAccount(customer, splitRequest);
+                    return new RequestResult(newAccount(customer, splitRequest), true);
                 case "PAY":
-                    return payRequest(customer, splitRequest);
+                    return new RequestResult(payRequest(customer, splitRequest), true);
+                case "LOGOUT":
+                    return new RequestResult("Success", false);
                 default:
-                    return "FAIL";
+                    return new RequestResult("FAIL", true);
             }
         }
-        return "FAIL";
+        return new RequestResult("FAIL", true);
     }
 
     private String newAccount(CustomerID customerId, String[] splitRequest) {
