@@ -1,6 +1,7 @@
 package newbank.server;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -20,6 +21,8 @@ public class NewBankServer extends Thread {
                 Socket s = server.accept();
                 NewBankClientHandler clientHandler = new NewBankClientHandler(s);
                 clientHandler.start();
+                System.out.println("New connection open, ip: "
+                        + ((InetSocketAddress) s.getRemoteSocketAddress()).getAddress());
             }
         } catch (IOException e) {
             e.printStackTrace();

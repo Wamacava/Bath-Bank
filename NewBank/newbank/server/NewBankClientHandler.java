@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 
 public class NewBankClientHandler extends Thread {
@@ -11,12 +12,14 @@ public class NewBankClientHandler extends Thread {
     private NewBank bank;
     private BufferedReader in;
     private PrintWriter out;
+    private Socket socket;
 
 
     public NewBankClientHandler(Socket s) throws IOException {
         bank = NewBank.getBank();
         in = new BufferedReader(new InputStreamReader(s.getInputStream()));
         out = new PrintWriter(s.getOutputStream(), true);
+        socket = s;
     }
 
     public void run() {
@@ -60,6 +63,8 @@ public class NewBankClientHandler extends Thread {
             try {
                 in.close();
                 out.close();
+                System.out.println("Connection closed, ip: " +
+                        ((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress());
             } catch (IOException e) {
                 e.printStackTrace();
                 Thread.currentThread().interrupt();
