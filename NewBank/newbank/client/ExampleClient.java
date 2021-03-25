@@ -26,8 +26,12 @@ public class ExampleClient extends Thread {
                 try {
                     while (true) {
                         String responce = bankServerIn.readLine();
+                        if (responce == null) {
+                            break;
+                        }
                         System.out.println(responce);
                     }
+                    System.out.println("Connection with bank closed. Please try again later.");
                 } catch (IOException e) {
                     e.printStackTrace();
                     return;
@@ -54,15 +58,15 @@ public class ExampleClient extends Thread {
 
     public static void main(String[] args) throws UnknownHostException, IOException, InterruptedException {
         Boolean retryConnecting = true;
-        while(retryConnecting){
+        while (retryConnecting) {
             try {
                 new ExampleClient("localhost", 14002).start();
                 retryConnecting = false; // already connected
-            } catch (IOException e){
+            } catch (IOException e) {
                 System.out.println("Failed to connect to the bank, do you want to retry? [y/n]");
                 BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
                 String response = reader.readLine();
-                if(response.equals("y\n")){
+                if (response.equals("y\n")) {
                     retryConnecting = false;
                 }
             }
