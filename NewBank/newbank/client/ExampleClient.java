@@ -66,7 +66,7 @@ public class ExampleClient extends Thread {
                 System.out.println("Failed to connect to the bank, do you want to retry? [y/n]");
                 BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
                 String response = reader.readLine();
-                if (response.equals("y\n")) {
+                if (!response.equals("y")) {
                     retryConnecting = false;
                 }
             }
