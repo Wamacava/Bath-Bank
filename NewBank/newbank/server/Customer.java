@@ -18,13 +18,12 @@ public class Customer {
     private Boolean validPassword(String password){
         boolean numberIncluded = false;
         int length = 0;
-
         for(String letter : password.split("")){
             try {
                 Double.parseDouble(letter);
                 numberIncluded = true;
             } catch (NumberFormatException e){}
-            length = length + 1;
+            length++;
         }
         if (length >= 6 && numberIncluded){
             return true;
