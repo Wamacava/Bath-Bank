@@ -1,6 +1,6 @@
 package newbank.server;
 
-import java.util.ArrayList;
+import java.util.*;
 
 public class Customer {
 
@@ -9,8 +9,26 @@ public class Customer {
     private String password;
 
     public Customer(String password) {
-        this.password = password;
-        accounts = new ArrayList<>();
+        if (validPassword(password)) {
+            this.password = password;
+            accounts = new ArrayList<>();
+        }
+    }
+
+    private Boolean validPassword(String password){
+        boolean numberIncluded = false;
+        int length = 0;
+        for(String letter : password.split("")){
+            try {
+                Double.parseDouble(letter);
+                numberIncluded = true;
+            } catch (NumberFormatException e){}
+            length++;
+        }
+        if (length >= 6 && numberIncluded){
+            return true;
+        }
+        return false;
     }
 
     public String accountsToString() {
