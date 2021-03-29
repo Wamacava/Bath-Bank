@@ -59,8 +59,13 @@ public class NewBankClientHandler extends Thread {
 
 
                 } else {
-                    out.println("Log In Failed; Please Retry");
                     failedLoginAttempts++;
+                    if (failedLoginAttempts < 3) {
+                        out.println("Log In Failed; Please Retry");
+                    }
+                    else {
+                        out.println("Too many login attempts.");
+                    }
                 }
             }
         } catch (IOException e) {
