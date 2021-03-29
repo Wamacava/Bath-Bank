@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ExampleClient extends Thread {
 
@@ -13,11 +14,13 @@ public class ExampleClient extends Thread {
     private PrintWriter bankServerOut;
     private BufferedReader userInput;
     private Thread bankServerResponceThread;
+    private AtomicBoolean isServerConnected;
 
     public ExampleClient(String ip, int port) throws UnknownHostException, IOException {
         server = new Socket(ip, port);
         userInput = new BufferedReader(new InputStreamReader(System.in));
         bankServerOut = new PrintWriter(server.getOutputStream(), true);
+        isServerConnected = new AtomicBoolean(true);
 
         bankServerResponceThread = new Thread() {
             private BufferedReader bankServerIn = new BufferedReader(new InputStreamReader(server.getInputStream()));
@@ -25,13 +28,14 @@ public class ExampleClient extends Thread {
             public void run() {
                 try {
                     while (true) {
-                        String responce = bankServerIn.readLine();
-                        if (responce == null) {
+                        String response = bankServerIn.readLine();
+                        if (response == null) {
                             break;
                         }
-                        System.out.println(responce);
+                        System.out.println(response);
                     }
                     System.out.println("Connection with bank closed. Please try again later.");
+                    isServerConnected.set(false);
                 } catch (IOException e) {
                     e.printStackTrace();
                     return;
@@ -43,14 +47,13 @@ public class ExampleClient extends Thread {
 
 
     public void run() {
-        while (true) {
+        while (isServerConnected.get()) {
             try {
-                while (true) {
+                while (isServerConnected.get()) {
                     String command = userInput.readLine();
                     bankServerOut.println(command);
                 }
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
