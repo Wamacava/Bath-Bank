@@ -14,17 +14,17 @@ public class NewBank {
     }
 
     private void addTestData() {
-        Customer bhagy = new Customer("P@SsWorD");
+        Customer bhagy = new Customer("P@SsWorD1");
         bhagy.addAccount(new Account("Main", 1000.0));
         bhagy.addAccount(new Account("Savings", 100.0));
         customers.put("Bhagy", bhagy);
 
-        Customer christina = new Customer("admin");
+        Customer christina = new Customer("adminperson1");
         christina.addAccount(new Account("Main", 1500.0));
         christina.addAccount(new Account("Savings", 1500.0));
         customers.put("Christina", christina);
 
-        Customer john = new Customer("abcd");
+        Customer john = new Customer("abcde12");
         john.addAccount(new Account("Main", 250.0));
         john.addAccount(new Account("Checking", 250.0));
         customers.put("John", john);
