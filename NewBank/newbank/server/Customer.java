@@ -7,10 +7,12 @@ public class Customer {
     private ArrayList<Account> accounts;
 
     private String password;
+    private int UID;
 
-    public Customer(String password) {
+    public Customer(String password, int UID) {
         if (validPassword(password)) {
             this.password = password;
+            this.UID = UID;
             accounts = new ArrayList<>();
         }
     }
