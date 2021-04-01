@@ -1,12 +1,15 @@
 package newbank.server;
 
 import java.util.HashMap;
+import java.util.ArrayList;
 import java.lang.*;
+import java.time.LocalDate;
 
 public class NewBank {
 
     private static final NewBank bank = new NewBank();
     private HashMap<String, Customer> customers;
+    private ArrayList<LocalDate> payments = new ArrayList<>();
     private int numberOfCustomers = 0;
 
     private NewBank() {
@@ -17,21 +20,21 @@ public class NewBank {
     private void addTestData() {
         numberOfCustomers++;
         Customer bhagy = new Customer("P@SsWorD1", numberOfCustomers);
-        bhagy.addAccount(new Account("Main", 1000.0));
-        bhagy.addAccount(new Account("Savings", 100.0));
+        bhagy.addAccount(new Account("Main", 1000.0, "2021-01-01"));
+        bhagy.addAccount(new Account("Savings", 100.0, "2021-01-02"));
         customers.put("Bhagy", bhagy);
 
         numberOfCustomers++;
         Customer christina = new Customer("adminperson1", numberOfCustomers);
-        christina.addAccount(new Account("Main", 1500.0));
-        christina.addAccount(new Account("Savings", 1500.0));
+        christina.addAccount(new Account("Main", 1500.0, "2021-02-01"));
+        christina.addAccount(new Account("Savings", 1500.0, "2021-02-02"));
         customers.put("Christina", christina);
 
         // Christina duplicate test - this overwrites the existing Christina in customers
         numberOfCustomers++;
         Customer christina2 = new Customer("adminperson2", numberOfCustomers);
-        christina2.addAccount(new Account("Main", 2500.0));
-        christina2.addAccount(new Account("Savings", 2500.0));
+        christina2.addAccount(new Account("Main", 2500.0, "2021-01-03"));
+        christina2.addAccount(new Account("Savings", 2500.0, "2021-01-04"));
         customers.put("Christina", christina2);
 
         numberOfCustomers++;
@@ -168,6 +171,9 @@ public class NewBank {
 
         // 7. If true returned - add money to the second account
         toAccount.addMoney(amount);
+
+        // Add the current date to the list of successful payments
+        payments.add(LocalDate.now());
 
         // 8. return "SUCCESS"
         return "SUCCESS";

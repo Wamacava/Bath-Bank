@@ -8,6 +8,7 @@ public class Customer {
 
     private String password;
     private int UID;
+    private int numberOfAccounts = 0;
 
     public Customer(String password, int UID) {
         if (validPassword(password)) {
@@ -47,6 +48,8 @@ public class Customer {
                 return false;
             }
         }
+        numberOfAccounts++;
+        account.setAccountNumber(numberOfAccounts);
         accounts.add(account);
         return true;
     }
