@@ -7,6 +7,7 @@ public class NewBank {
 
     private static final NewBank bank = new NewBank();
     private HashMap<String, Customer> customers;
+    private int numberOfCustomers = 0;
 
     private NewBank() {
         customers = new HashMap<>();
@@ -14,17 +15,27 @@ public class NewBank {
     }
 
     private void addTestData() {
-        Customer bhagy = new Customer("P@SsWorD1");
+        numberOfCustomers++;
+        Customer bhagy = new Customer("P@SsWorD1", numberOfCustomers);
         bhagy.addAccount(new Account("Main", 1000.0));
         bhagy.addAccount(new Account("Savings", 100.0));
         customers.put("Bhagy", bhagy);
 
-        Customer christina = new Customer("adminperson1");
+        numberOfCustomers++;
+        Customer christina = new Customer("adminperson1", numberOfCustomers);
         christina.addAccount(new Account("Main", 1500.0));
         christina.addAccount(new Account("Savings", 1500.0));
         customers.put("Christina", christina);
 
-        Customer john = new Customer("abcde12");
+        // Christina duplicate test - this overwrites the existing Christina in customers
+        numberOfCustomers++;
+        Customer christina2 = new Customer("adminperson2", numberOfCustomers);
+        christina2.addAccount(new Account("Main", 2500.0));
+        christina2.addAccount(new Account("Savings", 2500.0));
+        customers.put("Christina", christina2);
+
+        numberOfCustomers++;
+        Customer john = new Customer("abcde12", numberOfCustomers);
         john.addAccount(new Account("Main", 250.0));
         john.addAccount(new Account("Checking", 250.0));
         customers.put("John", john);
