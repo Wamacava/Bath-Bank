@@ -71,22 +71,20 @@ public class Customer {
         return s;
     }
 
-    public boolean addNewAccount(String newAccountName) {
+    public boolean addNewAccount(String newAccountName, int accountNumber) {
         for (Account a : accounts) {
             if (a.getName().equals(newAccountName)) {
                 return false;
             }
         }
-        Account account = new Account(newAccountName);
-        account.setAccountNumber(accounts.size() + 1); // TODO this should in database
+        Account account = new Account(newAccountName, accountNumber);
         accounts.add(account);
         return true;
     }
 
 
-    public boolean addAccountFromDatabase(String newAccountName, Double balance, String openingDate) {
-        Account account = new Account(newAccountName, balance, openingDate);
-        account.setAccountNumber(accounts.size() + 1); // TODO this should in database
+    public boolean addAccountFromDatabase(String newAccountName, Double balance, String openingDate, int accountNumber) {
+        Account account = new Account(newAccountName, balance, openingDate, accountNumber);
         accounts.add(account);
         return true;
     }

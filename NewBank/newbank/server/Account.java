@@ -12,28 +12,36 @@ public class Account {
 
     /**
      * Constructor for new account creation
+     *
      * @param accountName
      */
-    public Account(String accountName) {
+    public Account(String accountName, int accountNumber) {
         this.accountName = accountName;
         this.currentBalance = 0.0;
         this.openingDate = LocalDate.now();
+        this.accountNumber = accountNumber;
     }
 
     /**
      * Constructor for account loaded from the database
+     *
      * @param accountName
      * @param openingBalance
      * @param openingDate
      */
-    public Account(String accountName, double openingBalance, String openingDate) {
+    public Account(String accountName, double openingBalance, String openingDate, int accountNumber) {
         this.accountName = accountName;
         this.currentBalance = openingBalance;
         this.openingDate = LocalDate.parse(openingDate);
+        this.accountNumber = accountNumber;
     }
 
     public void setAccountNumber(int accountNumber) {
         this.accountNumber = accountNumber;
+    }
+
+    public int getAccountNumber() {
+        return accountNumber;
     }
 
     public String toString() {

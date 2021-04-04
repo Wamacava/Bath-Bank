@@ -14,8 +14,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 
+/**
+ * Class responsible for accessing database files
+ */
 public class NewBankDatabaseAccessor {
-    private String databaseDirectory = "newbank/database/";
+    private String customerDatabaseDirectory = "newbank/customer_database/";
     private String dbFileExtension = ".json";
     // Fields used in JSON file (to avoid mismatches in loaders and savers):
     private String NameJson = "Name";
@@ -25,8 +28,13 @@ public class NewBankDatabaseAccessor {
     private String IsAdminJson = "IsAdmin";
     private String IsVerifiedJson = "IsVerified";
     private String AccountNameJson = "Name";
+    private String AccountNumberJson = "AccountNumber";
     private String AccountBalanceJson = "Balance";
     private String AccountOpeningDateJson = "OpeningDate";
+
+    private String bankDatabaseDirectory = "newbank/bank_details_database/";
+    private String accountDetailsFilename = "account_details.json";
+    private String HighestAccountNumberJson = "HighestAccountNumber";
 
     public NewBankDatabaseAccessor() {
 
@@ -40,7 +48,7 @@ public class NewBankDatabaseAccessor {
      */
     public boolean CustomerExists(String id) {
         String filename = id + dbFileExtension;
-        return new File(databaseDirectory, filename).exists();
+        return new File(customerDatabaseDirectory, filename).exists();
     }
 
     /**
@@ -55,40 +63,30 @@ public class NewBankDatabaseAccessor {
             return null;
         }
 
-        String customerFileName = databaseDirectory + id + dbFileExtension;
-        JSONParser parser = new JSONParser();
-        Customer customer = null;
+        String customerFileName = customerDatabaseDirectory + id + dbFileExtension;
+        // A JSON object. Key value pairs are unordered. JSONObject supports java.util.Map interface.
 
-        try (FileReader fileReader = new FileReader(customerFileName)) {
+        JSONObject jsonObject = ParseJsonFile(customerFileName);
 
-            Object obj = parser.parse(fileReader);
+        String name = (String) jsonObject.get(NameJson);
+        String surname = (String) jsonObject.get(SurnameJson);
+        String password = (String) jsonObject.get(PasswordJson);
+        boolean isAdmin = (boolean) jsonObject.get(IsAdminJson);
+        boolean isVerified = (boolean) jsonObject.get(IsVerifiedJson);
 
-            // A JSON object. Key value pairs are unordered. JSONObject supports java.util.Map interface.
-            JSONObject jsonObject = (JSONObject) obj;
+        Customer customer = Customer.CreateCustomer(id, name, surname, password, isAdmin, isVerified);
 
-            String name = (String) jsonObject.get(NameJson);
-            String surname = (String) jsonObject.get(SurnameJson);
-            String password = (String) jsonObject.get(PasswordJson);
-            boolean isAdmin = (boolean) jsonObject.get(IsAdminJson);
-            boolean isVerified = (boolean) jsonObject.get(IsVerifiedJson);
-
-            customer = Customer.CreateCustomer(id, name, surname, password, isAdmin, isVerified);
-
-            // Customer creation can fail due to the password check
-            if (customer != null) {
-
-                // A JSON array. JSONObject supports java.util.List interface.
-                JSONArray accountsJsonArray = (JSONArray) jsonObject.get(AccountListJson);
-
-                customer = ParseCustomerAccounts(customer, accountsJsonArray);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        // Customer creation can fail due to the password check
         if (customer != null) {
+
+            // A JSON array. JSONObject supports java.util.List interface.
+            JSONArray accountsJsonArray = (JSONArray) jsonObject.get(AccountListJson);
+
+            customer = ParseCustomerAccounts(customer, accountsJsonArray);
+
             System.out.println("Customer " + id + " loaded");
         }
+        
         return customer;
     }
 
@@ -129,20 +127,15 @@ public class NewBankDatabaseAccessor {
             accountJson.put(AccountOpeningDateJson, account.getOpeningDate().toString());
             accountJson.put(AccountBalanceJson, account.getBalance());
             accountJson.put(AccountNameJson, account.getName());
+            accountJson.put(AccountNumberJson, account.getAccountNumber());
 
             accountList.add(accountJson);
         }
         obj.put(AccountListJson, accountList);
 
         // Constructs a FileWriter given a file name, using the platform's default charset
-        String fileName = databaseDirectory + customer.getUID() + dbFileExtension;
-        try (FileWriter fileWriter = new FileWriter(fileName)) {
-
-            fileWriter.write(prettyPrintJSON(obj.toJSONString()));
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        String filePath = customerDatabaseDirectory + customer.getUID() + dbFileExtension;
+        SaveToJsonFile(obj, filePath);
 
         return true;
     }
@@ -158,6 +151,42 @@ public class NewBankDatabaseAccessor {
         return true;
     }
 
+    public int GetHighestAccountNumber() {
+        JSONObject jsonObject = ParseJsonFile(bankDatabaseDirectory + accountDetailsFilename);
+        return ((Long) jsonObject.get(HighestAccountNumberJson)).intValue();
+    }
+
+    public void SetHighestAccountNumber(int newHighestAccountNumber) {
+        // JSON object. Key value pairs are unordered. JSONObject supports java.util.Map interface.
+        JSONObject obj = new JSONObject();
+        obj.put(HighestAccountNumberJson, newHighestAccountNumber);
+        String filePath = bankDatabaseDirectory + accountDetailsFilename;
+        SaveToJsonFile(obj, filePath);
+    }
+
+    private JSONObject ParseJsonFile(String filePath) {
+        JSONObject jsonObject = null;
+        try (FileReader fileReader = new FileReader(filePath)) {
+            JSONParser parser = new JSONParser();
+            Object obj = parser.parse(fileReader);
+            // A JSON object. Key value pairs are unordered. JSONObject supports java.util.Map interface.
+            jsonObject = (JSONObject) obj;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return jsonObject;
+    }
+
+    private void SaveToJsonFile(JSONObject jsonObject, String filePath){
+        try (FileWriter fileWriter = new FileWriter(filePath)) {
+
+            fileWriter.write(prettyPrintJSON(jsonObject.toJSONString()));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     private Customer ParseCustomerAccounts(Customer customer, JSONArray accountsJsonArray) {
         // An iterator over a collection. Iterator takes the place of Enumeration in the Java Collections Framework.
@@ -170,6 +199,7 @@ public class NewBankDatabaseAccessor {
             JSONObject accountData = iterator.next();
             String accountName = (String) accountData.get(AccountNameJson);
             String openingDate = (String) accountData.get(AccountOpeningDateJson);
+            Long accountNumber = (Long) accountData.get(AccountNumberJson);
             Double balance = 0.0;
             try {
                 balance = (Double) accountData.get(AccountBalanceJson);
@@ -177,7 +207,7 @@ public class NewBankDatabaseAccessor {
                 // TODO we should log an error somehow
                 // we reset customer's account in this case
             }
-            customer.addAccountFromDatabase(accountName, balance, openingDate);
+            customer.addAccountFromDatabase(accountName, balance, openingDate, accountNumber.intValue());
         }
         return customer;
     }

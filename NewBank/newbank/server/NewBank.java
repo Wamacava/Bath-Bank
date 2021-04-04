@@ -57,9 +57,12 @@ public class NewBank {
             return "FAIL";
         }
         String accountName = splitRequest[1];
+
         Customer customer = database.LoadCustomerReadWrite(customerId.getKey());
 
-        boolean success = customer.addNewAccount(accountName);
+        int accountNumber = database.GetHighestAccountNumber() +1;
+        database.SetHighestAccountNumber(accountNumber);
+        boolean success = customer.addNewAccount(accountName, accountNumber);
         database.SaveExistingCustomer(customer);
         return success ? "SUCCESS" : "FAIL";
     }

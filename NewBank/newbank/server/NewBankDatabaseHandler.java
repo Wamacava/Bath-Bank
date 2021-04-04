@@ -11,6 +11,7 @@ import java.util.ArrayList;
 public class NewBankDatabaseHandler {
     private NewBankDatabaseAccessor databaseAccessor = new NewBankDatabaseAccessor();
     private ArrayList<String> databaseEntriesInUse = new ArrayList<>();
+    private boolean isAccountDetailsFileInUse = false;
 
     public NewBankDatabaseHandler() {
 
@@ -67,6 +68,25 @@ public class NewBankDatabaseHandler {
     public boolean SaveNewCustomer(Customer customer) {
         // TODO implement for new customer functionality
         return databaseAccessor.SaveNewCustomer(customer);
+    }
+
+    public int GetHighestAccountNumber(){
+        // if account_details file is already used by another thread, wait until its done
+        while (isAccountDetailsFileInUse) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        isAccountDetailsFileInUse = true;
+        return databaseAccessor.GetHighestAccountNumber();
+    }
+
+    public void SetHighestAccountNumber(int newHighestAccountNumber){
+        databaseAccessor.SetHighestAccountNumber(newHighestAccountNumber);
+        isAccountDetailsFileInUse = false;
     }
 
 }
