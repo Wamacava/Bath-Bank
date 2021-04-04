@@ -1,0 +1,19 @@
+{
+  "IsAdmin":false,
+  "IsVerified":true,
+  "Surname":"Second",
+  "Accounts":[
+    {
+      "OpeningDate":"2019-11-11",
+      "Balance":1849.0,
+      "Name":"Main"
+    },
+    {
+      "OpeningDate":"2020-09-13",
+      "Balance":1232.0,
+      "Name":"Savings"
+    }
+  ],
+  "Name":"Christina",
+  "Password":"adminperson2"
+}

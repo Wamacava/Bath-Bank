@@ -1,0 +1,24 @@
+{
+  "IsAdmin":false,
+  "IsVerified":false,
+  "Surname":"Smith",
+  "Accounts":[
+    {
+      "OpeningDate":"2021-01-01",
+      "Balance":300.0,
+      "Name":"Main"
+    },
+    {
+      "OpeningDate":"2021-01-03",
+      "Balance":1900.0,
+      "Name":"Savings"
+    },
+    {
+      "OpeningDate":"2021-04-04",
+      "Balance":0.0,
+      "Name":"New"
+    }
+  ],
+  "Name":"Christina",
+  "Password":"abcde12"
+}

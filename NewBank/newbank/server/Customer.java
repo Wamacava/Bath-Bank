@@ -7,28 +7,57 @@ public class Customer {
     private ArrayList<Account> accounts;
     private LinkedList<Transaction> transactionHistory = new LinkedList<>();
 
-    private String password;
-    private int UID;
 
-    public Customer(String password, int UID) {
+    private String name = "";
+    private String surname = "";
+    private String password = "";
+    private String UID = "";
+    private boolean isAdmin = false;
+    private boolean isVerified = false;
+    private int numberOfAccounts = 0;
+
+    public static Customer CreateCustomer(String UID, String name, String surname, String password, boolean isAdmin, boolean isVerified) {
         if (validPassword(password)) {
-            this.password = password;
-            this.UID = UID+1000; // Customers are given UIDs in the range 1001 onwards
-            accounts = new ArrayList<>();
+            return new Customer(UID, name, surname, password, isAdmin, isVerified);
         }
+        return null;
     }
 
-    private Boolean validPassword(String password){
+    public static Customer CreateCustomer(String password, String UID) {
+        if (validPassword(password)) {
+            return new Customer(password, UID);
+        }
+        return null;
+    }
+
+    public Customer(String password, String UID) {
+        this.password = password;
+        this.UID = UID;
+        accounts = new ArrayList<>();
+    }
+
+    public Customer(String UID, String name, String surname, String password, boolean isAdmin, boolean isVerified) {
+        this.password = password;
+        this.UID = UID;
+        this.name = name;
+        this.surname = surname;
+        this.isAdmin = isAdmin;
+        this.isVerified = isVerified;
+        accounts = new ArrayList<>();
+    }
+
+    private static Boolean validPassword(String password) {
         boolean numberIncluded = false;
         int length = 0;
-        for(String letter : password.split("")){
+        for (String letter : password.split("")) {
             try {
                 Double.parseDouble(letter);
                 numberIncluded = true;
-            } catch (NumberFormatException e){}
+            } catch (NumberFormatException e) {
+            }
             length++;
         }
-        if (length >= 6 && numberIncluded){
+        if (length >= 6 && numberIncluded) {
             return true;
         }
         return false;
@@ -42,13 +71,22 @@ public class Customer {
         return s;
     }
 
-    public boolean addAccount(Account account) {
+    public boolean addNewAccount(String newAccountName) {
         for (Account a : accounts) {
-            if (a.getName().equals(account.getName())) {
+            if (a.getName().equals(newAccountName)) {
                 return false;
             }
         }
-        account.setAccountNumber(accounts.size()+1);
+        Account account = new Account(newAccountName);
+        account.setAccountNumber(accounts.size() + 1); // TODO this should in database
+        accounts.add(account);
+        return true;
+    }
+
+
+    public boolean addAccountFromDatabase(String newAccountName, Double balance, String openingDate) {
+        Account account = new Account(newAccountName, balance, openingDate);
+        account.setAccountNumber(accounts.size() + 1); // TODO this should in database
         accounts.add(account);
         return true;
     }
@@ -76,10 +114,9 @@ public class Customer {
         return this.password.equals(password);
     }
 
-    // No one should have access to account outside this class
-//    public ArrayList<Account> getAccountList() {
-//        return accounts;
-//    }
+    public ArrayList<Account> getAccountList() {
+        return accounts;
+    }
 
     public Boolean move(String fromAccountString, String toAccountString, double amount) {
         Account fromAccount = this.getAccount(fromAccountString);
@@ -110,4 +147,49 @@ public class Customer {
         }
     }
 
+    public String getSurname() {
+        return surname;
+    }
+
+
+    public void setSurname(String surname) {
+        this.surname = surname;
+    }
+
+    public boolean getIsAdmin() {
+        return isAdmin;
+    }
+
+    public boolean getIsVerified() {
+        return isVerified;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+
+    public boolean setPassword(String password) {
+        if (Customer.validPassword(password)) {
+            this.password = password;
+            return true;
+        }
+        return false;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getUID() {
+        return UID;
+    }
+
+    public void setUID(String UID) {
+        this.UID = UID;
+    }
 }
