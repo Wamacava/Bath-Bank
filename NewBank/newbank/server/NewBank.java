@@ -9,7 +9,6 @@ public class NewBank {
 
     private static final NewBank bank = new NewBank();
     private HashMap<String, Customer> customers;
-    private ArrayList<LocalDate> payments = new ArrayList<>();
     private int numberOfCustomers = 0;
 
     private NewBank() {
@@ -126,7 +125,7 @@ public class NewBank {
     }
 
     private String payRequest(CustomerID customerId, String[] splitRequest) {
-        // check there are 2 things in the request
+        // check there are 3 things in the request
         if (splitRequest.length != 3) {
             return "FAIL";
         }
@@ -172,8 +171,9 @@ public class NewBank {
         // 7. If true returned - add money to the second account
         toAccount.addMoney(amount);
 
-        // Add the current date to the list of successful payments
-        payments.add(LocalDate.now());
+        // Add transaction to both customers' transaction history
+        fromCustomer.addTransaction(new Transaction(LocalDate.now(),amount,"outgoing"));
+        toCustomer.addTransaction(new Transaction(LocalDate.now(),amount,"incoming"));
 
         // 8. return "SUCCESS"
         return "SUCCESS";

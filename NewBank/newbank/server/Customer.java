@@ -5,15 +5,15 @@ import java.util.*;
 public class Customer {
 
     private ArrayList<Account> accounts;
+    private LinkedList<Transaction> transactionHistory = new LinkedList<>();
 
     private String password;
     private int UID;
-    private int numberOfAccounts = 0;
 
     public Customer(String password, int UID) {
         if (validPassword(password)) {
             this.password = password;
-            this.UID = UID;
+            this.UID = UID+1000; // Customers are given UIDs in the range 1001 onwards
             accounts = new ArrayList<>();
         }
     }
@@ -48,10 +48,13 @@ public class Customer {
                 return false;
             }
         }
-        numberOfAccounts++;
-        account.setAccountNumber(numberOfAccounts);
+        account.setAccountNumber(accounts.size()+1);
         accounts.add(account);
         return true;
+    }
+
+    public void addTransaction(Transaction transaction) {
+        transactionHistory.addFirst(transaction);
     }
 
     /**
@@ -98,6 +101,13 @@ public class Customer {
             return true;
         }
         return false;
+    }
+
+    public void printTransactionHistory() {
+        System.out.println("Transaction History");
+        for (Transaction transaction : this.transactionHistory) {
+            System.out.println(transaction.toString());
+        }
     }
 
 }
