@@ -42,6 +42,9 @@ public class NewBank {
                     return new RequestResult(newAccount(customerId, splitRequest), true);
                 case "PAY":
                     return new RequestResult(payRequest(customerId, splitRequest), true);
+                case "SHOWTRANSACTIONHISTORY":
+                    String history = database.LoadCustomerReadOnly(customerId.getKey()).PrintTransactionHistory();
+                    return new RequestResult(history, true);
                 case "LOGOUT":
                     return new RequestResult("Success", false);
                 default:
@@ -60,7 +63,7 @@ public class NewBank {
 
         Customer customer = database.LoadCustomerReadWrite(customerId.getKey());
 
-        int accountNumber = database.GetHighestAccountNumber() +1;
+        int accountNumber = database.GetHighestAccountNumber() + 1;
         database.SetHighestAccountNumber(accountNumber);
         boolean success = customer.addNewAccount(accountName, accountNumber);
         database.SaveExistingCustomer(customer);
@@ -148,8 +151,8 @@ public class NewBank {
         toAccount.addMoney(amount);
 
         // Add transaction to both customers' transaction history
-        fromCustomer.addTransaction(new Transaction(LocalDate.now(),amount,false, toCustomer.getUID()));
-        toCustomer.addTransaction(new Transaction(LocalDate.now(),amount,true, fromCustomer.getUID()));
+        fromCustomer.addTransaction(new Transaction(LocalDate.now(), amount, false, toCustomer.getUID()));
+        toCustomer.addTransaction(new Transaction(LocalDate.now(), amount, true, fromCustomer.getUID()));
 
         // 8. return "SUCCESS"
         database.SaveExistingCustomer(fromCustomer);

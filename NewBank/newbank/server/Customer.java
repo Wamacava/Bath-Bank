@@ -106,6 +106,7 @@ public class Customer {
         transactionHistory.addFirst(transaction);
     }
 
+
     /**
      * Function to get account with a given name
      *
@@ -151,11 +152,12 @@ public class Customer {
         return false;
     }
 
-    public void printTransactionHistory() {
-        System.out.println("Transaction History");
+    public String PrintTransactionHistory() {
+        String history = "";
         for (Transaction transaction : this.transactionHistory) {
-            System.out.println(transaction.toString());
+            history += transaction.toString();
         }
+        return history;
     }
 
     public JSONArray AccountsToJson() {

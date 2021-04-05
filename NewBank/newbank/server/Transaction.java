@@ -18,25 +18,25 @@ public class Transaction {
 
     public String toString() {
         String string = "";
-        string += this.date.toString()+"\t";
-        string += Double.toString(this.amount)+"\t";
-        string += "Incoming: " + this.isIncomingTransaction;
+        string += "Date: " + this.date.toString() + "\t";
+        string += "Amount: " + Double.toString(this.amount) + "\t";
+        string += "Incoming: " + this.isIncomingTransaction + "\n";
         return string;
     }
 
-    public LocalDate GetDate(){
+    public LocalDate GetDate() {
         return date;
     }
 
-    public Double GetAmount(){
+    public Double GetAmount() {
         return amount;
     }
 
-    public String GetCustomerInvolved(){
+    public String GetCustomerInvolved() {
         return customerInvolved;
     }
 
-    public boolean IsIncoming(){
+    public boolean IsIncoming() {
         return isIncomingTransaction;
     }
 

@@ -46,6 +46,7 @@ public class NewBankClientHandler extends Thread {
                             + "\n\tNEWACCOUNT <Name>"
                             + "\n\tMOVE <Amount> <From> <To>"
                             + "\n\tPAY <Name> <Amount>"
+                            + "\n\tSHOWTRANSACTIONHISTORY"
                             + "\n\tLOGOUT"
                             + "\nWhat do you want to do?");
                     RequestResult result;

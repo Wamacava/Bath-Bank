@@ -18,5 +18,8 @@ PAY <Person/Company> <Ammount>
 e.g. PAY John 100
 Returns SUCCESS or FAIL
 
+SHOWTRANSACTIONHISTORY
+Returns List of transaction data
+
 LOGOUT
 Returns SUCCESS
