@@ -6,31 +6,50 @@ public class Account {
 
     private int accountNumber;
     private String accountName;
-    private double currentBalance;
-    private double possibleDebt = 0;
+    private Double currentBalance;
+    private Double possibleDebt = 0.0;
     private LocalDate openingDate;
 
-    public Account(String accountName, double openingBalance) {
+    /**
+     * Constructor for new account creation
+     *
+     * @param accountName
+     */
+    public Account(String accountName, int accountNumber) {
         this.accountName = accountName;
-        this.currentBalance = openingBalance;
+        this.currentBalance = 0.0;
         this.openingDate = LocalDate.now();
+        this.accountNumber = accountNumber;
     }
-    public Account(String accountName, double openingBalance, String openingDate) {
+
+    /**
+     * Constructor for account loaded from the database
+     *
+     * @param accountName
+     * @param openingBalance
+     * @param openingDate
+     */
+    public Account(String accountName, double openingBalance, String openingDate, int accountNumber) {
         this.accountName = accountName;
         this.currentBalance = openingBalance;
         this.openingDate = LocalDate.parse(openingDate);
+        this.accountNumber = accountNumber;
     }
 
     public void setAccountNumber(int accountNumber) {
         this.accountNumber = accountNumber;
     }
 
+    public int getAccountNumber() {
+        return accountNumber;
+    }
+
     public String toString() {
         return (accountName + ": " + currentBalance);
     }
 
-    public double getBalance() {
-        return (currentBalance);
+    public Double getBalance() {
+        return currentBalance;
     }
 
     public String getName() {
@@ -56,5 +75,9 @@ public class Account {
             return true;
         }
         return false;
+    }
+
+    public LocalDate getOpeningDate() {
+        return openingDate;
     }
 }

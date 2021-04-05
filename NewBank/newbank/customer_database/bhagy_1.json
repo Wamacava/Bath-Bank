@@ -1,0 +1,23 @@
+{
+  "IsAdmin":false,
+  "IsVerified":true,
+  "Surname":"Wilson",
+  "Accounts":[
+    {
+      "OpeningDate":"2019-03-05",
+      "AccountNumber":1,
+      "Balance":3242.0,
+      "Name":"Main"
+    },
+    {
+      "OpeningDate":"2016-05-19",
+      "AccountNumber":2,
+      "Balance":109.0,
+      "Name":"Savings"
+    }
+  ],
+  "Transactions":[
+  ],
+  "Name":"Bhagy",
+  "Password":"P@SsWorD1"
+}

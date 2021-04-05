@@ -1,6 +1,5 @@
 package newbank.server;
 
-import java.util.HashMap;
 import java.util.ArrayList;
 import java.lang.*;
 import java.time.LocalDate;
@@ -8,48 +7,21 @@ import java.time.LocalDate;
 public class NewBank {
 
     private static final NewBank bank = new NewBank();
-    private HashMap<String, Customer> customers;
-    private int numberOfCustomers = 0;
+
+    private ArrayList<LocalDate> payments = new ArrayList<>();
+    NewBankDatabaseHandler database = new NewBankDatabaseHandler();
 
     private NewBank() {
-        customers = new HashMap<>();
-        addTestData();
     }
 
-    private void addTestData() {
-        numberOfCustomers++;
-        Customer bhagy = new Customer("P@SsWorD1", numberOfCustomers);
-        bhagy.addAccount(new Account("Main", 1000.0, "2021-01-01"));
-        bhagy.addAccount(new Account("Savings", 100.0, "2021-01-02"));
-        customers.put("Bhagy", bhagy);
-
-        numberOfCustomers++;
-        Customer christina = new Customer("adminperson1", numberOfCustomers);
-        christina.addAccount(new Account("Main", 1500.0, "2021-02-01"));
-        christina.addAccount(new Account("Savings", 1500.0, "2021-02-02"));
-        customers.put("Christina", christina);
-
-        // Christina duplicate test - this overwrites the existing Christina in customers
-        numberOfCustomers++;
-        Customer christina2 = new Customer("adminperson2", numberOfCustomers);
-        christina2.addAccount(new Account("Main", 2500.0, "2021-01-03"));
-        christina2.addAccount(new Account("Savings", 2500.0, "2021-01-04"));
-        customers.put("Christina", christina2);
-
-        numberOfCustomers++;
-        Customer john = new Customer("abcde12", numberOfCustomers);
-        john.addAccount(new Account("Main", 250.0));
-        john.addAccount(new Account("Checking", 250.0));
-        customers.put("John", john);
-    }
 
     public static NewBank getBank() {
         return bank;
     }
 
     public synchronized CustomerID checkLogInDetails(String userName, String password) {
-        if (customers.containsKey(userName)) {
-            Customer customer = customers.get(userName);
+        Customer customer = database.LoadCustomerReadOnly(userName);
+        if (customer != null) {
             if (customer.checkPassword(password)) {
                 return new CustomerID(userName);
             }
@@ -58,18 +30,21 @@ public class NewBank {
     }
 
     // commands from the NewBank customer are processed in this method
-    public synchronized RequestResult processRequest(CustomerID customer, String request) {
-        if (customers.containsKey(customer.getKey())) {
+    public synchronized RequestResult processRequest(CustomerID customerId, String request) {
+        if (database.CustomerExists(customerId.getKey())) {
             String[] splitRequest = request.split(" ");
             switch (splitRequest[0]) {
                 case "SHOWMYACCOUNTS":
-                    return new RequestResult(showMyAccounts(customer), true);
+                    return new RequestResult(showMyAccounts(customerId), true);
                 case "MOVE":
-                    return new RequestResult(moveRequest(customer, splitRequest), true);
+                    return new RequestResult(moveRequest(customerId, splitRequest), true);
                 case "NEWACCOUNT":
-                    return new RequestResult(newAccount(customer, splitRequest), true);
+                    return new RequestResult(newAccount(customerId, splitRequest), true);
                 case "PAY":
-                    return new RequestResult(payRequest(customer, splitRequest), true);
+                    return new RequestResult(payRequest(customerId, splitRequest), true);
+                case "SHOWTRANSACTIONHISTORY":
+                    String history = database.LoadCustomerReadOnly(customerId.getKey()).PrintTransactionHistory();
+                    return new RequestResult(history, true);
                 case "LOGOUT":
                     return new RequestResult("Success", false);
                 default:
@@ -84,16 +59,19 @@ public class NewBank {
         if (splitRequest.length != 2) {
             return "FAIL";
         }
-        Account account = new Account(splitRequest[1], 0.0);
-        Customer customer = customers.get(customerId.getKey());
-        if (customer.addAccount(account)) {
-            return "SUCCESS";
-        }
-        return "FAIL";
+        String accountName = splitRequest[1];
+
+        Customer customer = database.LoadCustomerReadWrite(customerId.getKey());
+
+        int accountNumber = database.GetHighestAccountNumber() + 1;
+        database.SetHighestAccountNumber(accountNumber);
+        boolean success = customer.addNewAccount(accountName, accountNumber);
+        database.SaveExistingCustomer(customer);
+        return success ? "SUCCESS" : "FAIL";
     }
 
-    private String showMyAccounts(CustomerID customer) {
-        return (customers.get(customer.getKey())).accountsToString();
+    private String showMyAccounts(CustomerID customerId) {
+        return (database.LoadCustomerReadOnly(customerId.getKey())).accountsToString();
     }
 
     private String moveRequest(CustomerID customerId, String[] splitRequest) {
@@ -112,13 +90,14 @@ public class NewBank {
         }
 
         // find the correct customer object
-        Customer customer = customers.get(customerId.getKey());
+        Customer customer = database.LoadCustomerReadWrite(customerId.getKey());
 
         String fromAccountString = splitRequest[2];
         String toAccountString = splitRequest[3];
 
         // call move function in customer object
         if (customer.move(fromAccountString, toAccountString, amount)) {
+            database.SaveExistingCustomer(customer);
             return "SUCCESS";
         }
         return "FAIL";
@@ -136,16 +115,16 @@ public class NewBank {
         String toAccountName = "Main";
 
         // 1. Get first customer
-        Customer fromCustomer = customers.get(customerId.getKey());
+        Customer fromCustomer = database.LoadCustomerReadWrite(customerId.getKey());
         // 2. Find account of first customer
         Account fromAccount = fromCustomer.getAccount(fromAccountName);
 
         // 3. Find second customer
         String toCustomerString = splitRequest[1];
-        if (!customers.containsKey(toCustomerString)) {
+        if (!database.CustomerExists(toCustomerString)) {
             return "FAIL";
         }
-        Customer toCustomer = customers.get(toCustomerString);
+        Customer toCustomer = database.LoadCustomerReadWrite(toCustomerString);
 
         // 4. Find account of second customer
         Account toAccount = toCustomer.getAccount(toAccountName);
@@ -172,10 +151,12 @@ public class NewBank {
         toAccount.addMoney(amount);
 
         // Add transaction to both customers' transaction history
-        fromCustomer.addTransaction(new Transaction(LocalDate.now(),amount,"outgoing"));
-        toCustomer.addTransaction(new Transaction(LocalDate.now(),amount,"incoming"));
+        fromCustomer.addTransaction(new Transaction(LocalDate.now(), amount, false, toCustomer.getUID()));
+        toCustomer.addTransaction(new Transaction(LocalDate.now(), amount, true, fromCustomer.getUID()));
 
         // 8. return "SUCCESS"
+        database.SaveExistingCustomer(fromCustomer);
+        database.SaveExistingCustomer(toCustomer);
         return "SUCCESS";
     }
 }
