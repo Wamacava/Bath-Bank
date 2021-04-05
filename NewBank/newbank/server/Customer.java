@@ -1,5 +1,9 @@
 package newbank.server;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
+import java.time.LocalDate;
 import java.util.*;
 
 public class Customer {
@@ -14,7 +18,16 @@ public class Customer {
     private String UID = "";
     private boolean isAdmin = false;
     private boolean isVerified = false;
-    private int numberOfAccounts = 0;
+
+    private String AccountNameJson = "Name";
+    private String AccountNumberJson = "AccountNumber";
+    private String AccountBalanceJson = "Balance";
+    private String AccountOpeningDateJson = "OpeningDate";
+
+    private String TransactionDateJson = "Date";
+    private String TransactionCustomerInvolvedJson = "CustomerInvolved";
+    private String TransactionAmountJson = "Amount";
+    private String TransactionIsIncomingJson = "IsIncoming";
 
     public static Customer CreateCustomer(String UID, String name, String surname, String password, boolean isAdmin, boolean isVerified) {
         if (validPassword(password)) {
@@ -142,6 +155,78 @@ public class Customer {
         System.out.println("Transaction History");
         for (Transaction transaction : this.transactionHistory) {
             System.out.println(transaction.toString());
+        }
+    }
+
+    public JSONArray AccountsToJson() {
+        JSONArray accountList = new JSONArray();
+        for (Account account : accounts) {
+            JSONObject accountJson = new JSONObject();
+            accountJson.put(AccountOpeningDateJson, account.getOpeningDate().toString());
+            accountJson.put(AccountBalanceJson, account.getBalance());
+            accountJson.put(AccountNameJson, account.getName());
+            accountJson.put(AccountNumberJson, account.getAccountNumber());
+
+            accountList.add(accountJson);
+        }
+        return accountList;
+    }
+
+    public void AccountsFromJson(JSONArray accountsJsonArray) {
+        // An iterator over a collection. Iterator takes the place of Enumeration in the Java Collections Framework.
+        // Iterators differ from enumerations in two ways:
+        // 1. Iterators allow the caller to remove elements from the underlying collection during the iteration with well-defined semantics.
+        // 2. Method names have been improved.
+        Iterator<JSONObject> iterator = accountsJsonArray.iterator();
+        // Adding accounts
+        while (iterator.hasNext()) {
+            JSONObject accountData = iterator.next();
+            String accountName = (String) accountData.get(AccountNameJson);
+            String openingDate = (String) accountData.get(AccountOpeningDateJson);
+            Long accountNumber = (Long) accountData.get(AccountNumberJson);
+            Double balance = 0.0;
+            try {
+                balance = (Double) accountData.get(AccountBalanceJson);
+            } catch (NumberFormatException e) {
+                // TODO we should log an error somehow
+                // we reset customer's account in this case
+            }
+            this.addAccountFromDatabase(accountName, balance, openingDate, accountNumber.intValue());
+        }
+    }
+
+    public JSONArray TransactionsToJson() {
+        JSONArray transactionList = new JSONArray();
+        for (Transaction transaction : this.transactionHistory) {
+            JSONObject transactionJson = new JSONObject();
+            transactionJson.put(TransactionDateJson, transaction.GetDate().toString());
+            transactionJson.put(TransactionAmountJson, transaction.GetAmount());
+            transactionJson.put(TransactionIsIncomingJson, transaction.IsIncoming());
+            transactionJson.put(TransactionCustomerInvolvedJson, transaction.GetCustomerInvolved());
+
+            transactionList.add(transactionJson);
+        }
+        return transactionList;
+    }
+
+    public void TransactionsFromJson(JSONArray transactionJsonArray) {
+        // An iterator over a collection. Iterator takes the place of Enumeration in the Java Collections Framework.
+        // Iterators differ from enumerations in two ways:
+        // 1. Iterators allow the caller to remove elements from the underlying collection during the iteration with well-defined semantics.
+        // 2. Method names have been improved.
+        Iterator<JSONObject> iterator = transactionJsonArray.iterator();
+        // Adding accounts
+        while (iterator.hasNext()) {
+            JSONObject accountData = iterator.next();
+            String date = (String) accountData.get(TransactionDateJson);
+            String customerInvolved = (String) accountData.get(TransactionCustomerInvolvedJson);
+            boolean isIncoming = (boolean) accountData.get(TransactionIsIncomingJson);
+            Double amount = 0.0;
+            try {
+                amount = (Double) accountData.get(TransactionAmountJson);
+            } catch (NumberFormatException e) {
+            }
+            this.addTransaction(new Transaction(LocalDate.parse(date), amount, isIncoming, customerInvolved));
         }
     }
 

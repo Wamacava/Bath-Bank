@@ -148,8 +148,8 @@ public class NewBank {
         toAccount.addMoney(amount);
 
         // Add transaction to both customers' transaction history
-        fromCustomer.addTransaction(new Transaction(LocalDate.now(),amount,"outgoing"));
-        toCustomer.addTransaction(new Transaction(LocalDate.now(),amount,"incoming"));
+        fromCustomer.addTransaction(new Transaction(LocalDate.now(),amount,false, toCustomer.getUID()));
+        toCustomer.addTransaction(new Transaction(LocalDate.now(),amount,true, fromCustomer.getUID()));
 
         // 8. return "SUCCESS"
         database.SaveExistingCustomer(fromCustomer);

@@ -25,12 +25,10 @@ public class NewBankDatabaseAccessor {
     private String SurnameJson = "Surname";
     private String PasswordJson = "Password";
     private String AccountListJson = "Accounts";
+    private String TransactionListJson = "Transactions";
     private String IsAdminJson = "IsAdmin";
     private String IsVerifiedJson = "IsVerified";
-    private String AccountNameJson = "Name";
-    private String AccountNumberJson = "AccountNumber";
-    private String AccountBalanceJson = "Balance";
-    private String AccountOpeningDateJson = "OpeningDate";
+
 
     private String bankDatabaseDirectory = "newbank/bank_details_database/";
     private String accountDetailsFilename = "account_details.json";
@@ -81,12 +79,14 @@ public class NewBankDatabaseAccessor {
 
             // A JSON array. JSONObject supports java.util.List interface.
             JSONArray accountsJsonArray = (JSONArray) jsonObject.get(AccountListJson);
+            customer.AccountsFromJson(accountsJsonArray);
 
-            customer = ParseCustomerAccounts(customer, accountsJsonArray);
+            JSONArray transactionsJsonArray = (JSONArray) jsonObject.get(TransactionListJson);
+            customer.TransactionsFromJson(transactionsJsonArray);
 
             System.out.println("Customer " + id + " loaded");
         }
-        
+
         return customer;
     }
 
@@ -119,19 +119,9 @@ public class NewBankDatabaseAccessor {
         obj.put(IsAdminJson, customer.getIsAdmin());
         obj.put(IsVerifiedJson, customer.getIsVerified());
 
+        obj.put(AccountListJson, customer.AccountsToJson());
 
-        JSONArray accountList = new JSONArray();
-        ArrayList<Account> accounts = customer.getAccountList();
-        for (Account account : accounts) {
-            JSONObject accountJson = new JSONObject();
-            accountJson.put(AccountOpeningDateJson, account.getOpeningDate().toString());
-            accountJson.put(AccountBalanceJson, account.getBalance());
-            accountJson.put(AccountNameJson, account.getName());
-            accountJson.put(AccountNumberJson, account.getAccountNumber());
-
-            accountList.add(accountJson);
-        }
-        obj.put(AccountListJson, accountList);
+        obj.put(TransactionListJson, customer.TransactionsToJson());
 
         // Constructs a FileWriter given a file name, using the platform's default charset
         String filePath = customerDatabaseDirectory + customer.getUID() + dbFileExtension;
@@ -177,7 +167,7 @@ public class NewBankDatabaseAccessor {
         return jsonObject;
     }
 
-    private void SaveToJsonFile(JSONObject jsonObject, String filePath){
+    private void SaveToJsonFile(JSONObject jsonObject, String filePath) {
         try (FileWriter fileWriter = new FileWriter(filePath)) {
 
             fileWriter.write(prettyPrintJSON(jsonObject.toJSONString()));
@@ -185,31 +175,6 @@ public class NewBankDatabaseAccessor {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-
-    private Customer ParseCustomerAccounts(Customer customer, JSONArray accountsJsonArray) {
-        // An iterator over a collection. Iterator takes the place of Enumeration in the Java Collections Framework.
-        // Iterators differ from enumerations in two ways:
-        // 1. Iterators allow the caller to remove elements from the underlying collection during the iteration with well-defined semantics.
-        // 2. Method names have been improved.
-        Iterator<JSONObject> iterator = accountsJsonArray.iterator();
-        // Adding accounts
-        while (iterator.hasNext()) {
-            JSONObject accountData = iterator.next();
-            String accountName = (String) accountData.get(AccountNameJson);
-            String openingDate = (String) accountData.get(AccountOpeningDateJson);
-            Long accountNumber = (Long) accountData.get(AccountNumberJson);
-            Double balance = 0.0;
-            try {
-                balance = (Double) accountData.get(AccountBalanceJson);
-            } catch (NumberFormatException e) {
-                // TODO we should log an error somehow
-                // we reset customer's account in this case
-            }
-            customer.addAccountFromDatabase(accountName, balance, openingDate, accountNumber.intValue());
-        }
-        return customer;
     }
 
 
