@@ -1,14 +1,28 @@
 package newbank.server;
 
+import java.time.LocalDate;
+
 public class Account {
 
+    private int accountNumber;
     private String accountName;
     private double currentBalance;
     private double possibleDebt = 0;
+    private LocalDate openingDate;
 
     public Account(String accountName, double openingBalance) {
         this.accountName = accountName;
         this.currentBalance = openingBalance;
+        this.openingDate = LocalDate.now();
+    }
+    public Account(String accountName, double openingBalance, String openingDate) {
+        this.accountName = accountName;
+        this.currentBalance = openingBalance;
+        this.openingDate = LocalDate.parse(openingDate);
+    }
+
+    public void setAccountNumber(int accountNumber) {
+        this.accountNumber = accountNumber;
     }
 
     public String toString() {
