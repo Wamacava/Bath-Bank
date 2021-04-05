@@ -125,11 +125,7 @@ public class Customer {
     public boolean checkPassword(String password) {
         return this.password.equals(password);
     }
-
-    public ArrayList<Account> getAccountList() {
-        return accounts;
-    }
-
+    
     public Boolean move(String fromAccountString, String toAccountString, double amount) {
         Account fromAccount = this.getAccount(fromAccountString);
         Account toAccount = this.getAccount(toAccountString);
