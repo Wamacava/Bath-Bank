@@ -20,6 +20,7 @@ public class Transaction {
         String string = "";
         string += "Date: " + this.date.toString() + "\t";
         string += "Amount: " + Double.toString(this.amount) + "\t";
+        string += "To/From: " + this.customerInvolved + "\t";
         string += "Incoming: " + this.isIncomingTransaction + "\n";
         return string;
     }
