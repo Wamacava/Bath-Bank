@@ -1,6 +1,7 @@
 {
   "IsAdmin":false,
   "IsVerified":true,
+  "IsActiveLoaner":false,
   "Surname":"Wilson",
   "Accounts":[
     {

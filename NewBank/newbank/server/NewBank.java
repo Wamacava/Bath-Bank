@@ -42,6 +42,10 @@ public class NewBank {
                     return new RequestResult(newAccount(customerId, splitRequest), true);
                 case "PAY":
                     return new RequestResult(payRequest(customerId, splitRequest), true);
+                case "SUBSCRIBETOMICROLOAN":
+                    return new RequestResult(optinLoan(customerId), true);
+                case "UNSUBSCRIBETOMICROLOAN":
+                    return new RequestResult(optoutLoan(customerId), true);
                 case "SHOWTRANSACTIONHISTORY":
                     String history = database.LoadCustomerReadOnly(customerId.getKey()).PrintTransactionHistory();
                     return new RequestResult(history, true);
@@ -158,5 +162,27 @@ public class NewBank {
         database.SaveExistingCustomer(fromCustomer);
         database.SaveExistingCustomer(toCustomer);
         return "SUCCESS";
+    }
+
+    private String optinLoan(CustomerID customerId){
+        Customer customer = database.LoadCustomerReadWrite(customerId.getKey());
+        //if not already an active loaner, change so you are
+        if(!customer.getIsActiveLoaner()){
+            customer.setIsActiveLoaner(true);
+            database.SaveExistingCustomer(customer);
+            return "SUCCESS";
+        }
+        return "FAIL";
+    }
+
+    private String optoutLoan(CustomerID customerId){
+        Customer customer = database.LoadCustomerReadWrite(customerId.getKey());
+        //if already an active loaner, change so you are not
+        if(customer.getIsActiveLoaner()){
+            customer.setIsActiveLoaner(false);
+            database.SaveExistingCustomer(customer);
+            return "SUCCESS";
+        }
+        return "FAIL";
     }
 }
