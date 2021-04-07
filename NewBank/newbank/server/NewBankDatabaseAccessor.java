@@ -18,7 +18,7 @@ import java.io.IOException;
  * Class responsible for accessing database files
  */
 public class NewBankDatabaseAccessor {
-    private String customerDatabaseDirectory = "newbank/customer_database/";
+    private String customerDatabaseDirectory = "Newbank/newbank/customer_database/";
     private String dbFileExtension = ".json";
     // Fields used in JSON file (to avoid mismatches in loaders and savers):
     private String NameJson = "Name";

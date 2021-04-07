@@ -12,6 +12,7 @@ public class Customer {
     private LinkedList<Transaction> transactionHistory = new LinkedList<>();
 
 
+
     private String name = "";
     private String surname = "";
     private String password = "";
