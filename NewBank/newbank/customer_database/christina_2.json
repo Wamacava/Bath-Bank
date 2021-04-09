@@ -1,22 +1,24 @@
 {
+  "Transactions":[
+    
+  ],
   "IsAdmin":false,
+  "IsActiveLoaner":true,
   "IsVerified":true,
   "Surname":"Second",
   "Accounts":[
     {
       "OpeningDate":"2019-11-11",
-      "AccountNumber":6,
-      "Balance":1849.0,
-      "Name":"Main"
+      "Balance":1901.0,
+      "Name":"Main",
+      "AccountNumber":6
     },
     {
       "OpeningDate":"2020-09-13",
-      "AccountNumber":7,
       "Balance":1232.0,
-      "Name":"Savings"
+      "Name":"Savings",
+      "AccountNumber":7
     }
-  ],
-  "Transactions":[
   ],
   "Name":"Christina",
   "Password":"adminperson2"

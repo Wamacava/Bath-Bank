@@ -13,12 +13,15 @@ import java.util.Iterator;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 
 /**
  * Class responsible for accessing database files
  */
 public class NewBankDatabaseAccessor {
-    private String customerDatabaseDirectory = "Newbank/newbank/customer_database/";
+    private String customerDatabaseDirectory = "newbank/customer_database/";
     private String dbFileExtension = ".json";
     // Fields used in JSON file (to avoid mismatches in loaders and savers):
     private String NameJson = "Name";
@@ -30,9 +33,19 @@ public class NewBankDatabaseAccessor {
     private String IsVerifiedJson = "IsVerified";
     private String IsActiveLoanerJson = "IsActiveLoaner";
 
+    // Fields used in JSON for Microloan
+    private String MicroloanListJson = "Microloans";
+    private String MicroloanSourceJson = "Source";
+    private String MicroloanTargetJson = "Target";
+    private String MicroloanDateTimeJson = "DateTime";
+    private String MicroloanAmountJson = "Amount";
+    private String MicroloanLoanPeriodJson = "LoanPeriod";
+    private String MicroloanInterestRateJson = "InterestRate";
+
 
     private String bankDatabaseDirectory = "newbank/bank_details_database/";
     private String accountDetailsFilename = "account_details.json";
+    private String microloansFilename = "microloans.json";
     private String HighestAccountNumberJson = "HighestAccountNumber";
 
     public NewBankDatabaseAccessor() {
@@ -49,6 +62,21 @@ public class NewBankDatabaseAccessor {
         String filename = id + dbFileExtension;
         return new File(customerDatabaseDirectory, filename).exists();
     }
+
+    public ArrayList<String> getAllCustomerIds() {
+        ArrayList<String> allCustomerIds = new ArrayList<>();
+
+        File folder = new File(customerDatabaseDirectory);
+        File[] listOfFiles = folder.listFiles();
+        for (File file : listOfFiles) {
+            if (file.isFile()) {
+                allCustomerIds.add(file.getName().replace(dbFileExtension,""));
+            }
+        }
+
+        return allCustomerIds;
+    }
+
 
     /**
      * Loads Customer object from the database
@@ -155,6 +183,72 @@ public class NewBankDatabaseAccessor {
         obj.put(HighestAccountNumberJson, newHighestAccountNumber);
         String filePath = bankDatabaseDirectory + accountDetailsFilename;
         SaveToJsonFile(obj, filePath);
+    }
+
+    private JSONArray MicroloansToJson(ArrayList<Microloan> microloans) {
+        JSONArray microloanList = new JSONArray();
+        for (Microloan microloan : microloans) {
+            JSONObject microloanJson = new JSONObject();
+            microloanJson.put(MicroloanSourceJson, microloan.getSource());
+            microloanJson.put(MicroloanTargetJson, microloan.getTarget());
+            microloanJson.put(MicroloanDateTimeJson, microloan.getDateTime().toString());
+            microloanJson.put(MicroloanAmountJson, Double.toString(microloan.getAmount()));
+            microloanJson.put(MicroloanLoanPeriodJson, Integer.toString(microloan.getLoanPeriod()));
+            microloanJson.put(MicroloanInterestRateJson, Double.toString(microloan.getInterestRate()));
+
+            microloanList.add(microloanJson);
+        }
+        return microloanList;
+    }
+
+    private ArrayList<Microloan> MicroloansFromJson(JSONArray microloanJsonArray) {
+        Iterator<JSONObject> iterator = microloanJsonArray.iterator();
+        ArrayList<Microloan> microloans = new ArrayList<>();
+        // Adding microloans
+        while (iterator.hasNext()) {
+            JSONObject microloanData = iterator.next();
+            String source = (String) microloanData.get(MicroloanSourceJson);
+            String target = (String) microloanData.get(MicroloanTargetJson);
+            LocalDateTime datetime = LocalDateTime.parse((String) microloanData.get(MicroloanDateTimeJson));
+            Double amount = 0.0;
+            try {
+                amount = Double.parseDouble((String) microloanData.get(MicroloanAmountJson));
+            } catch (NumberFormatException e) {
+            }
+            Integer loanPeriod = 0;
+            try {
+                loanPeriod = Integer.parseInt((String) microloanData.get(MicroloanLoanPeriodJson));
+            } catch (NumberFormatException e) {
+            }
+            Double interestRate = 0.0;
+            try {
+                interestRate = Double.parseDouble((String) microloanData.get(MicroloanInterestRateJson));
+            } catch (NumberFormatException e) {
+            }
+
+            microloans.add(new Microloan(source,target,datetime,amount,loanPeriod,interestRate));
+        }
+        return microloans;
+    }
+
+    public void SaveMicroloans(ArrayList<Microloan> microloans) {
+        JSONObject obj = new JSONObject();
+
+        obj.put(MicroloanListJson, MicroloansToJson(microloans));
+
+        // Constructs a FileWriter given a file name, using the platform's default charset
+        String filePath = bankDatabaseDirectory + microloansFilename;
+        SaveToJsonFile(obj, filePath);
+    }
+
+    public ArrayList<Microloan> LoadMicroloans() {
+        String filePath = bankDatabaseDirectory + microloansFilename;
+        JSONObject jsonObject = ParseJsonFile(filePath);
+
+        JSONArray microloanJsonArray = (JSONArray) jsonObject.get(MicroloanListJson);
+        ArrayList<Microloan> microloans = MicroloansFromJson(microloanJsonArray);
+
+        return microloans;
     }
 
     private JSONObject ParseJsonFile(String filePath) {

@@ -70,6 +70,15 @@ public class NewBankDatabaseHandler {
         return databaseAccessor.SaveNewCustomer(customer);
     }
 
+    public void SaveMicroloans(ArrayList<Microloan> microloans) {
+        databaseAccessor.SaveMicroloans(microloans);
+    }
+
+    public ArrayList<Microloan> LoadMicroloans() {
+        ArrayList<Microloan> microloans = databaseAccessor.LoadMicroloans();
+        return microloans;
+    }
+
     public int GetHighestAccountNumber(){
         // if account_details file is already used by another thread, wait until its done
         while (isAccountDetailsFileInUse) {
@@ -87,6 +96,50 @@ public class NewBankDatabaseHandler {
     public void SetHighestAccountNumber(int newHighestAccountNumber){
         databaseAccessor.SetHighestAccountNumber(newHighestAccountNumber);
         isAccountDetailsFileInUse = false;
+    }
+
+    private ArrayList<String> getMicroloanSubscribedUsers() {
+        ArrayList<String> microloanSubscribedUsers = new ArrayList<>();
+        // Scan all user files for active loaners
+        ArrayList<String> allCustomerIds = this.databaseAccessor.getAllCustomerIds();
+        for (String id : allCustomerIds) {
+            Customer customer = LoadCustomerReadOnly(id);
+            if (customer.getIsActiveLoaner()) {
+                microloanSubscribedUsers.add(id);
+            }
+            SaveExistingCustomer(customer);
+        }
+
+        return microloanSubscribedUsers;
+    }
+
+    public String findEligibleLoaner(double amount) {
+        // Get list of eligible loaners
+        ArrayList<String> microloanSubscribedUsers = getMicroloanSubscribedUsers();
+        for (String id : microloanSubscribedUsers) {
+            Customer customer = LoadCustomerReadOnly(id);
+            double amountInMain = customer.getAccount("Main").getBalance();
+            if (amountInMain >= (4*amount)) {
+                return id;
+            }
+        }
+        // If no eligible loaners, print error message
+        System.out.println("There are no eligible loaners for this amount.");
+        return null;
+    }
+
+    public ArrayList<Microloan> GetCustomerMicroloans(String id) {
+        ArrayList<Microloan> customerMicroloans = new ArrayList<>();
+
+        // Search list of all microloans for target = id
+        ArrayList<Microloan> allMicroloans = databaseAccessor.LoadMicroloans();
+        for (Microloan microloan : allMicroloans) {
+            if (microloan.getTarget().equals(id)) {
+                customerMicroloans.add(microloan);
+            }
+        }
+
+        return customerMicroloans;
     }
 
 }
