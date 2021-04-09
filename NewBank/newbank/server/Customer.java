@@ -18,6 +18,7 @@ public class Customer {
     private String UID = "";
     private boolean isAdmin = false;
     private boolean isVerified = false;
+    private boolean isActiveLoaner = false;
 
     private String AccountNameJson = "Name";
     private String AccountNumberJson = "AccountNumber";
@@ -29,9 +30,9 @@ public class Customer {
     private String TransactionAmountJson = "Amount";
     private String TransactionIsIncomingJson = "IsIncoming";
 
-    public static Customer CreateCustomer(String UID, String name, String surname, String password, boolean isAdmin, boolean isVerified) {
+    public static Customer CreateCustomer(String UID, String name, String surname, String password, boolean isAdmin, boolean isVerified, boolean isActiveLoaner) {
         if (validPassword(password)) {
-            return new Customer(UID, name, surname, password, isAdmin, isVerified);
+            return new Customer(UID, name, surname, password, isAdmin, isVerified, isActiveLoaner);
         }
         return null;
     }
@@ -49,13 +50,14 @@ public class Customer {
         accounts = new ArrayList<>();
     }
 
-    public Customer(String UID, String name, String surname, String password, boolean isAdmin, boolean isVerified) {
+    public Customer(String UID, String name, String surname, String password, boolean isAdmin, boolean isVerified, boolean isActiveLoaner) {
         this.password = password;
         this.UID = UID;
         this.name = name;
         this.surname = surname;
         this.isAdmin = isAdmin;
         this.isVerified = isVerified;
+        this.isActiveLoaner = isActiveLoaner;
         accounts = new ArrayList<>();
     }
 
@@ -243,6 +245,14 @@ public class Customer {
 
     public boolean getIsVerified() {
         return isVerified;
+    }
+
+    public boolean getIsActiveLoaner() {
+        return isActiveLoaner;
+    }
+
+    public void setIsActiveLoaner(boolean isActiveLoaner){
+        this.isActiveLoaner = isActiveLoaner;
     }
 
     public String getPassword() {

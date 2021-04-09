@@ -28,6 +28,7 @@ public class NewBankDatabaseAccessor {
     private String TransactionListJson = "Transactions";
     private String IsAdminJson = "IsAdmin";
     private String IsVerifiedJson = "IsVerified";
+    private String IsActiveLoanerJson = "IsActiveLoaner";
 
 
     private String bankDatabaseDirectory = "newbank/bank_details_database/";
@@ -71,8 +72,9 @@ public class NewBankDatabaseAccessor {
         String password = (String) jsonObject.get(PasswordJson);
         boolean isAdmin = (boolean) jsonObject.get(IsAdminJson);
         boolean isVerified = (boolean) jsonObject.get(IsVerifiedJson);
+        boolean isActiveLoaner = (boolean) jsonObject.get(IsActiveLoanerJson);
 
-        Customer customer = Customer.CreateCustomer(id, name, surname, password, isAdmin, isVerified);
+        Customer customer = Customer.CreateCustomer(id, name, surname, password, isAdmin, isVerified, isActiveLoaner);
 
         // Customer creation can fail due to the password check
         if (customer != null) {
@@ -118,6 +120,7 @@ public class NewBankDatabaseAccessor {
         obj.put(PasswordJson, customer.getPassword());
         obj.put(IsAdminJson, customer.getIsAdmin());
         obj.put(IsVerifiedJson, customer.getIsVerified());
+        obj.put(IsActiveLoanerJson, customer.getIsActiveLoaner());
 
         obj.put(AccountListJson, customer.AccountsToJson());
 

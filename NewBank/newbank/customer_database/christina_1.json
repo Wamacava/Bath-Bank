@@ -15,6 +15,7 @@
   ],
   "IsAdmin":false,
   "IsVerified":false,
+  "IsActiveLoaner":false,
   "Surname":"Smith",
   "Accounts":[
     {
