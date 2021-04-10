@@ -5,6 +5,9 @@ import java.lang.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Timer;
+import java.util.TimerTask;
+
 
 public class NewBank {
 
@@ -271,5 +274,34 @@ public class NewBank {
         database.SaveExistingCustomer(customer);
         database.SaveExistingCustomer(loaner);
         return "SUCCESS";
+
+        //to do: 1. create new file , fix timer, 5 min check
+
+        Timer timer = new Timer();
+        timer.schedule(new ReturnLoan(), seconds*600);
+
+        Reminder reminder = new Reminder(5);
+
+            // Remove money from customer
+            fromAccount.removeMoney(amount);
+            // Add money to loaner
+            toAccount.addMoney(amount);
+            // Add transaction to both customers' transaction history
+            customer.addTransaction(new Transaction(LocalDate.now(), amount, false, customer.getUID()));
+            loaner.addTransaction(new Transaction(LocalDate.now(), amount, true, loaner.getUID()));
+
+            // 8. return "SUCCESS"
+            database.SaveExistingCustomer(customer);
+            database.SaveExistingCustomer(loaner);
+
+            timer.cancel(); //Terminate the timer thread
+
+            return"SUCCESS";
+
+        }
     }
+    }
+
 }
+
+
