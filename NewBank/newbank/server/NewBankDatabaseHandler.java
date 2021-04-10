@@ -79,7 +79,7 @@ public class NewBankDatabaseHandler {
         return microloans;
     }
 
-    public int GetHighestAccountNumber(){
+    public int GetHighestAccountNumber() {
         // if account_details file is already used by another thread, wait until its done
         while (isAccountDetailsFileInUse) {
             try {
@@ -93,7 +93,7 @@ public class NewBankDatabaseHandler {
         return databaseAccessor.GetHighestAccountNumber();
     }
 
-    public void SetHighestAccountNumber(int newHighestAccountNumber){
+    public void SetHighestAccountNumber(int newHighestAccountNumber) {
         databaseAccessor.SetHighestAccountNumber(newHighestAccountNumber);
         isAccountDetailsFileInUse = false;
     }
@@ -119,7 +119,7 @@ public class NewBankDatabaseHandler {
         for (String id : microloanSubscribedUsers) {
             Customer customer = LoadCustomerReadOnly(id);
             double amountInMain = customer.getAccount("Main").getBalance();
-            if (amountInMain >= (4*amount)) {
+            if (amountInMain >= (4 * amount)) {
                 return id;
             }
         }
@@ -128,11 +128,16 @@ public class NewBankDatabaseHandler {
         return null;
     }
 
+    public ArrayList<Microloan> GetAllActiveMicroloans() {
+        return databaseAccessor.LoadMicroloans();
+
+    }
+
     public ArrayList<Microloan> GetCustomerMicroloans(String id) {
         ArrayList<Microloan> customerMicroloans = new ArrayList<>();
 
         // Search list of all microloans for target = id
-        ArrayList<Microloan> allMicroloans = databaseAccessor.LoadMicroloans();
+        ArrayList<Microloan> allMicroloans = GetAllActiveMicroloans();
         for (Microloan microloan : allMicroloans) {
             if (microloan.getTarget().equals(id)) {
                 customerMicroloans.add(microloan);

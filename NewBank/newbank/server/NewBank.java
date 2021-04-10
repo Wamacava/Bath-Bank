@@ -5,8 +5,6 @@ import java.lang.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Timer;
-import java.util.TimerTask;
 
 
 public class NewBank {
@@ -14,8 +12,6 @@ public class NewBank {
     private static final NewBank bank = new NewBank();
 
     NewBankDatabaseHandler database = new NewBankDatabaseHandler();
-
-    private ArrayList<Microloan> microloans = new ArrayList<>();
 
     private NewBank() {
     }
@@ -180,10 +176,10 @@ public class NewBank {
         return "SUCCESS";
     }
 
-    private String optinLoan(CustomerID customerId){
+    private String optinLoan(CustomerID customerId) {
         Customer customer = database.LoadCustomerReadWrite(customerId.getKey());
         //if not already an active loaner, change so you are
-        if(!customer.getIsActiveLoaner()){
+        if (!customer.getIsActiveLoaner()) {
             customer.setIsActiveLoaner(true);
             database.SaveExistingCustomer(customer);
             return "SUCCESS";
@@ -192,10 +188,10 @@ public class NewBank {
         return "FAIL";
     }
 
-    private String optoutLoan(CustomerID customerId){
+    private String optoutLoan(CustomerID customerId) {
         Customer customer = database.LoadCustomerReadWrite(customerId.getKey());
         //if already an active loaner, change so you are not
-        if(customer.getIsActiveLoaner()){
+        if (customer.getIsActiveLoaner()) {
             customer.setIsActiveLoaner(false);
             database.SaveExistingCustomer(customer);
             return "SUCCESS";
@@ -224,14 +220,14 @@ public class NewBank {
             return "FAIL";
         }
 
-        this.microloans = database.LoadMicroloans();
+        ArrayList<Microloan> microloans = database.LoadMicroloans();
 
         Customer customer = database.LoadCustomerReadWrite(customerId.getKey());
         Account toAccount = customer.getAccount("Main");
 
         // Eligibility check - Main account must have existed for at least 3 months
         LocalDate mainOpeningDate = toAccount.getOpeningDate();
-        long diff = ChronoUnit.MONTHS.between(mainOpeningDate,LocalDate.now());
+        long diff = ChronoUnit.MONTHS.between(mainOpeningDate, LocalDate.now());
         if (diff < 3) {
             System.out.println("Main account must have existed for at least 3 months.");
             database.SaveExistingCustomer(customer);
@@ -267,7 +263,7 @@ public class NewBank {
         // Add microloan data to microloans file
         int loanPeriod = 10;
         double interestRate = 5.0;
-        microloans.add(new Microloan(loanerId,customerId.getKey(),LocalDateTime.now(),amount,loanPeriod,interestRate));
+        microloans.add(new Microloan(loanerId, customerId.getKey(), LocalDateTime.now(), amount, loanPeriod, interestRate));
 
         database.SaveMicroloans(microloans);
 
@@ -275,12 +271,25 @@ public class NewBank {
         database.SaveExistingCustomer(loaner);
         return "SUCCESS";
 
-        //to do: 1. create new file , fix timer, 5 min check
+    }
 
-        Timer timer = new Timer();
-        timer.schedule(new ReturnLoan(), seconds*600);
+    public void updateMicroloans() {
+        System.out.println("Update microloans in newbank");
+        ArrayList<Microloan> allMicroloans = database.GetAllActiveMicroloans();
+        for(Microloan microloan : allMicroloans) {
+            LocalDateTime fromDate = microloan.getLoanStartDate();
 
-        Reminder reminder = new Reminder(5);
+            long loanDuration = ChronoUnit.MINUTES.between(fromDate, LocalDateTime.now());
+            System.out.println(loanDuration);
+
+            if(loanDuration > microloan.getLoanPeriod()){
+                System.out.println("It needs returning!");
+
+            }
+        }
+    }
+
+        /*/to do: fix timer, 5 min check
 
             // Remove money from customer
             fromAccount.removeMoney(amount);
@@ -294,14 +303,10 @@ public class NewBank {
             database.SaveExistingCustomer(customer);
             database.SaveExistingCustomer(loaner);
 
-            timer.cancel(); //Terminate the timer thread
-
             return"SUCCESS";
+*/
 
-        }
-    }
-    }
 
 }
 
-
+// 1. Get a print every 5 secs, 2. Replace statement with reading database, 3. Check which are expired and print them 4. Return money and delete microloan from database 5. Move microloan to a history database

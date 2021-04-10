@@ -26,7 +26,7 @@ public class Microloan {
     public String getTarget() {
         return this.target;
     }
-    public LocalDateTime getDateTime() {
+    public LocalDateTime getLoanStartDate() {
         return this.datetime;
     }
     public double getAmount() {

@@ -1,3 +1,5 @@
+/*
+
 package newbank.server;
 
 import java.util.Timer;
@@ -6,7 +8,7 @@ import java.util.TimerTask;
 /**
  * Simple demo that uses java.util.Timer to schedule a task
  * to execute once 5 seconds have passed.
- */
+
 
 public class Scheduler {
 
@@ -21,7 +23,7 @@ public class Scheduler {
     class RemindTask extends TimerTask {
         public void run() {
             System.out.println("Time's up!");
-            timer.cancel(); //Terminate the timer thread
+            timer.cancel(); //Terminate the timer thread, give monee  with interest
         }
     }
 
@@ -30,3 +32,5 @@ public class Scheduler {
         System.out.println("Task scheduled.");
     }
 }
+
+*/

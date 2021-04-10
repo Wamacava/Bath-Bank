@@ -13,7 +13,6 @@ import java.util.Iterator;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 
@@ -191,7 +190,7 @@ public class NewBankDatabaseAccessor {
             JSONObject microloanJson = new JSONObject();
             microloanJson.put(MicroloanSourceJson, microloan.getSource());
             microloanJson.put(MicroloanTargetJson, microloan.getTarget());
-            microloanJson.put(MicroloanDateTimeJson, microloan.getDateTime().toString());
+            microloanJson.put(MicroloanDateTimeJson, microloan.getLoanStartDate().toString());
             microloanJson.put(MicroloanAmountJson, Double.toString(microloan.getAmount()));
             microloanJson.put(MicroloanLoanPeriodJson, Integer.toString(microloan.getLoanPeriod()));
             microloanJson.put(MicroloanInterestRateJson, Double.toString(microloan.getInterestRate()));
