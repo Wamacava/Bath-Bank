@@ -277,12 +277,8 @@ public class NewBank {
         System.out.println("Update microloans in newbank");
         ArrayList<Microloan> allMicroloans = database.GetAllActiveMicroloans();
         for(Microloan microloan : allMicroloans) {
-            LocalDateTime fromDate = microloan.getLoanStartDate();
 
-            long loanDuration = ChronoUnit.MINUTES.between(fromDate, LocalDateTime.now());
-            System.out.println(loanDuration);
-
-            if(loanDuration > microloan.getLoanPeriod()){
+            if(microloan.isExpired()){
                 System.out.println("It needs returning!");
 
             }
