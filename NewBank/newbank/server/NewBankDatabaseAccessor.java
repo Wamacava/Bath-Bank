@@ -45,6 +45,7 @@ public class NewBankDatabaseAccessor {
     private String bankDatabaseDirectory = "newbank/bank_details_database/";
     private String accountDetailsFilename = "account_details.json";
     private String microloansFilename = "microloans.json";
+    private String historicalMicroloansFilename = "historical_microloans.json";
     private String HighestAccountNumberJson = "HighestAccountNumber";
 
     public NewBankDatabaseAccessor() {
@@ -242,6 +243,26 @@ public class NewBankDatabaseAccessor {
 
     public ArrayList<Microloan> LoadMicroloans() {
         String filePath = bankDatabaseDirectory + microloansFilename;
+        JSONObject jsonObject = ParseJsonFile(filePath);
+
+        JSONArray microloanJsonArray = (JSONArray) jsonObject.get(MicroloanListJson);
+        ArrayList<Microloan> microloans = MicroloansFromJson(microloanJsonArray);
+
+        return microloans;
+    }
+
+    public void SaveHistoricalMicroloans(ArrayList<Microloan> microloans) {
+        JSONObject obj = new JSONObject();
+
+        obj.put(MicroloanListJson, MicroloansToJson(microloans));
+
+        // Constructs a FileWriter given a file name, using the platform's default charset
+        String filePath = bankDatabaseDirectory + historicalMicroloansFilename;
+        SaveToJsonFile(obj, filePath);
+    }
+
+    public ArrayList<Microloan> LoadHistoricalMicroloans() {
+        String filePath = bankDatabaseDirectory + historicalMicroloansFilename;
         JSONObject jsonObject = ParseJsonFile(filePath);
 
         JSONArray microloanJsonArray = (JSONArray) jsonObject.get(MicroloanListJson);

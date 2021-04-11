@@ -5,6 +5,7 @@ import java.lang.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Iterator;
 
 
 public class NewBank {
@@ -200,6 +201,8 @@ public class NewBank {
         return "FAIL";
     }
 
+    ArrayList<Microloan> allMicroloans = database.GetAllActiveMicroloans();
+
     private String loanRequest(CustomerID customerId, String[] splitRequest) {
         // check there are 2 things in the request
         if (splitRequest.length != 2) {
@@ -262,7 +265,7 @@ public class NewBank {
 
         // Add microloan data to microloans file
         int loanPeriod = 10;
-        double interestRate = 5.0;
+        double interestRate = 0.05;
         microloans.add(new Microloan(loanerId, customerId.getKey(), LocalDateTime.now(), amount, loanPeriod, interestRate));
 
         database.SaveMicroloans(microloans);
@@ -273,36 +276,48 @@ public class NewBank {
 
     }
 
+    /**
+     * This function should be executed periodically to pay back microloans which are due and
+     * update it to a historical database
+     */
     public void updateMicroloans() {
-        System.out.println("Update microloans in newbank");
+        System.out.println("Updating Microloans...");
         ArrayList<Microloan> allMicroloans = database.GetAllActiveMicroloans();
-        for(Microloan microloan : allMicroloans) {
+        ArrayList<Microloan> returnedMicroloans = new ArrayList();
+        Iterator<Microloan> microloanIterator = allMicroloans.iterator();
 
-            if(microloan.isExpired()){
-                System.out.println("It needs returning!");
+        while (microloanIterator.hasNext()){
+            Microloan microloan = microloanIterator.next();
 
+            if (microloan.isExpired()) {
+                //Get the amount (getAmount*getInterestRate)
+                double amountDue = microloan.getAmountDue();
+                // Get the details of the loaner and the customer
+                Customer borrower = database.LoadCustomerReadWrite(microloan.getTarget());
+                Account fromAccount = borrower.getAccount("Main");
+
+                Customer loaner = database.LoadCustomerReadWrite(microloan.getSource());
+                Account toAccount = loaner.getAccount("Main");
+
+                // Return the amount loaned from customer to loaner
+                if (!fromAccount.removeLoan(amountDue)) {
+                    database.SaveExistingCustomer(borrower);
+                    database.SaveExistingCustomer(loaner);
+                    return;
+                }
+                toAccount.addMoney(amountDue);
+                //Remove paid back microloan
+                microloanIterator.remove();
+                //Save to add historical microloans
+                returnedMicroloans.add(microloan);
+                //Saves updates to customers
+                database.SaveExistingCustomer(borrower);
+                database.SaveExistingCustomer(loaner);
             }
         }
+        //Save active and historical microloans to appropriate databases
+        database.SaveMicroloans(allMicroloans);
+        database.AddHistoricalMicroloans(returnedMicroloans);
+
     }
-
-        /*/to do: fix timer, 5 min check
-
-            // Remove money from customer
-            fromAccount.removeMoney(amount);
-            // Add money to loaner
-            toAccount.addMoney(amount);
-            // Add transaction to both customers' transaction history
-            customer.addTransaction(new Transaction(LocalDate.now(), amount, false, customer.getUID()));
-            loaner.addTransaction(new Transaction(LocalDate.now(), amount, true, loaner.getUID()));
-
-            // 8. return "SUCCESS"
-            database.SaveExistingCustomer(customer);
-            database.SaveExistingCustomer(loaner);
-
-            return"SUCCESS";
-*/
-
-
 }
-
-// 1. Get a print every 5 secs, 2. Replace statement with reading database, 3. Check which are expired and print them 4. Return money and delete microloan from database 5. Move microloan to a history database

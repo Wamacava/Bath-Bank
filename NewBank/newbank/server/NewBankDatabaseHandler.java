@@ -147,4 +147,14 @@ public class NewBankDatabaseHandler {
         return customerMicroloans;
     }
 
+    /**
+     * This function wants to get the returned microloans, merge it with  historicalmicroloans from database,
+     * and save it into the historical microloans file.
+     * @param newReturnedMicroloans
+     */
+    public void AddHistoricalMicroloans(ArrayList<Microloan> newReturnedMicroloans) {
+        ArrayList<Microloan> historicalMicroloans = databaseAccessor.LoadHistoricalMicroloans();
+        historicalMicroloans.addAll(newReturnedMicroloans);
+        databaseAccessor.SaveHistoricalMicroloans(historicalMicroloans);
+    }
 }

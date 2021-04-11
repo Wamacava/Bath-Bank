@@ -1,5 +1,6 @@
 package newbank.server;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
@@ -38,6 +39,14 @@ public class Microloan {
     }
     public double getInterestRate() {
         return this.interestRate;
+    }
+
+    /**
+     * This function creates the amount that should be returned by the customer to the loaner
+     * @return
+     */
+    public double getAmountDue() {
+        return amount*(1.0+interestRate);
     }
 
     public boolean isExpired(){
