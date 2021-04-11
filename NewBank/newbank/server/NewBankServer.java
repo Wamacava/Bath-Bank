@@ -41,9 +41,9 @@ public class NewBankServer extends Thread {
     public void startMicroLoanUpdater() {
         // And From your main() method or any other method
         Timer timer = new Timer();
-        int updatePeriodUs = 5000;
+        int updatePeriodMs = 300000;
         MicroLoanUpdater microLoanUpdater = new MicroLoanUpdater();
-        timer.schedule(microLoanUpdater, 0, updatePeriodUs);
+        timer.schedule(microLoanUpdater, 0, updatePeriodMs);
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {

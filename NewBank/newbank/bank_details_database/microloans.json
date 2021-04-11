@@ -3,22 +3,6 @@
     {
       "LoanPeriod":"10",
       "Target":"john_1",
-      "Amount":"10.0",
-      "InterestRate":"0.05",
-      "Source":"bhagy_1",
-      "DateTime":"2021-04-09T16:16:17.931935600"
-    },
-    {
-      "LoanPeriod":"10",
-      "Target":"john_1",
-      "Amount":"15.0",
-      "InterestRate":"0.05",
-      "Source":"bhagy_1",
-      "DateTime":"2021-04-10T18:38:56.893720100"
-    },
-    {
-      "LoanPeriod":"10",
-      "Target":"john_1",
       "Amount":"25.0",
       "InterestRate":"0.05",
       "Source":"bhagy_1",
