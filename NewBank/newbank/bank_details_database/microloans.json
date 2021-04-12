@@ -1,12 +1,5 @@
 {
   "Microloans":[
-    {
-      "LoanPeriod":"10",
-      "Target":"john_1",
-      "Amount":"25.0",
-      "InterestRate":"0.05",
-      "Source":"bhagy_1",
-      "DateTime":"2021-04-11T12:57:49.457139900"
-    }
+    
   ]
 }

@@ -1,16 +1,10 @@
 {
   "Transactions":[
     {
-      "IsIncoming":false,
-      "Amount":200.0,
-      "CustomerInvolved":"christina_1",
-      "Date":"2021-04-05"
-    },
-    {
       "IsIncoming":true,
-      "Amount":100.0,
-      "CustomerInvolved":"christina_1",
-      "Date":"2021-04-05"
+      "Amount":10.0,
+      "CustomerInvolved":"bhagy_1",
+      "Date":"2021-04-07"
     },
     {
       "IsIncoming":true,
@@ -20,19 +14,25 @@
     },
     {
       "IsIncoming":true,
-      "Amount":10.0,
-      "CustomerInvolved":"bhagy_1",
-      "Date":"2021-04-07"
+      "Amount":100.0,
+      "CustomerInvolved":"christina_1",
+      "Date":"2021-04-05"
+    },
+    {
+      "IsIncoming":false,
+      "Amount":200.0,
+      "CustomerInvolved":"christina_1",
+      "Date":"2021-04-05"
     }
   ],
   "IsAdmin":false,
-  "IsActiveLoaner":false,
+  "IsActiveLoaner":true,
   "IsVerified":true,
   "Surname":"Brown",
   "Accounts":[
     {
       "OpeningDate":"2019-05-02",
-      "Balance":772.75,
+      "Balance":724.0,
       "Name":"Main",
       "AccountNumber":8
     },
