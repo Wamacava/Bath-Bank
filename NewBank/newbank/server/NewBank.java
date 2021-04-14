@@ -3,12 +3,15 @@ package newbank.server;
 import java.util.ArrayList;
 import java.lang.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Iterator;
+
 
 public class NewBank {
 
     private static final NewBank bank = new NewBank();
 
-    private ArrayList<LocalDate> payments = new ArrayList<>();
     NewBankDatabaseHandler database = new NewBankDatabaseHandler();
 
     private NewBank() {
@@ -42,13 +45,15 @@ public class NewBank {
                     return new RequestResult(newAccount(customerId, splitRequest), true);
                 case "PAY":
                     return new RequestResult(payRequest(customerId, splitRequest), true);
+                case "SHOWTRANSACTIONHISTORY":
+                    String history = database.LoadCustomerReadOnly(customerId.getKey()).PrintTransactionHistory();
+                    return new RequestResult(history, true);
                 case "SUBSCRIBETOMICROLOAN":
                     return new RequestResult(optinLoan(customerId), true);
                 case "UNSUBSCRIBETOMICROLOAN":
                     return new RequestResult(optoutLoan(customerId), true);
-                case "SHOWTRANSACTIONHISTORY":
-                    String history = database.LoadCustomerReadOnly(customerId.getKey()).PrintTransactionHistory();
-                    return new RequestResult(history, true);
+                case "REQUESTLOAN":
+                    return new RequestResult(loanRequest(customerId, splitRequest), true);
                 case "LOGOUT":
                     return new RequestResult("Success", false);
                 default:
@@ -104,6 +109,7 @@ public class NewBank {
             database.SaveExistingCustomer(customer);
             return "SUCCESS";
         }
+        database.SaveExistingCustomer(customer);
         return "FAIL";
     }
 
@@ -126,6 +132,7 @@ public class NewBank {
         // 3. Find second customer
         String toCustomerString = splitRequest[1];
         if (!database.CustomerExists(toCustomerString)) {
+            database.SaveExistingCustomer(fromCustomer);
             return "FAIL";
         }
         Customer toCustomer = database.LoadCustomerReadWrite(toCustomerString);
@@ -139,15 +146,21 @@ public class NewBank {
             amount = Double.parseDouble(splitRequest[2]);
         } catch (NumberFormatException e) {
             // amount in invalid format - not a number
+            database.SaveExistingCustomer(fromCustomer);
+            database.SaveExistingCustomer(toCustomer);
             return "FAIL";
         }
 
         if (amount <= 0) {
+            database.SaveExistingCustomer(fromCustomer);
+            database.SaveExistingCustomer(toCustomer);
             return "FAIL";
         }
 
         // 6. If all OK, try to remove money from first account
         if (!fromAccount.removeMoney(amount)) {
+            database.SaveExistingCustomer(fromCustomer);
+            database.SaveExistingCustomer(toCustomer);
             return "FAIL";
         }
 
@@ -164,25 +177,147 @@ public class NewBank {
         return "SUCCESS";
     }
 
-    private String optinLoan(CustomerID customerId){
+    private String optinLoan(CustomerID customerId) {
         Customer customer = database.LoadCustomerReadWrite(customerId.getKey());
         //if not already an active loaner, change so you are
-        if(!customer.getIsActiveLoaner()){
+        if (!customer.getIsActiveLoaner()) {
             customer.setIsActiveLoaner(true);
             database.SaveExistingCustomer(customer);
             return "SUCCESS";
         }
+        database.SaveExistingCustomer(customer);
         return "FAIL";
     }
 
-    private String optoutLoan(CustomerID customerId){
+    private String optoutLoan(CustomerID customerId) {
         Customer customer = database.LoadCustomerReadWrite(customerId.getKey());
         //if already an active loaner, change so you are not
-        if(customer.getIsActiveLoaner()){
+        if (customer.getIsActiveLoaner()) {
             customer.setIsActiveLoaner(false);
             database.SaveExistingCustomer(customer);
             return "SUCCESS";
         }
+        database.SaveExistingCustomer(customer);
         return "FAIL";
+    }
+
+    ArrayList<Microloan> allMicroloans = database.GetAllActiveMicroloans();
+
+    private String loanRequest(CustomerID customerId, String[] splitRequest) {
+        // check there are 2 things in the request
+        if (splitRequest.length != 2) {
+            return "FAIL";
+        }
+
+        // Convert second argument to double, return fail if not a number
+        double amount;
+        try {
+            amount = Double.parseDouble(splitRequest[1]);
+        } catch (NumberFormatException e) {
+            // amount in invalid format - not a number
+            return "FAIL";
+        }
+
+        // Check that amount requested is no more than the maximum, and is not a negative value
+        if (amount <= 0 || amount > 1000) {
+            return "FAIL";
+        }
+
+        ArrayList<Microloan> microloans = database.LoadMicroloans();
+
+        Customer customer = database.LoadCustomerReadWrite(customerId.getKey());
+        Account toAccount = customer.getAccount("Main");
+
+        // Eligibility check - Main account must have existed for at least 3 months
+        LocalDate mainOpeningDate = toAccount.getOpeningDate();
+        long diff = ChronoUnit.MONTHS.between(mainOpeningDate, LocalDate.now());
+        if (diff < 3) {
+            System.out.println("Main account must have existed for at least 3 months.");
+            database.SaveExistingCustomer(customer);
+            return "FAIL";
+        }
+
+        // Eligibility check - Cannot have more than 3 loans at a time
+        ArrayList<Microloan> customerMicroloans = database.GetCustomerMicroloans(customerId.getKey());
+        if (customerMicroloans.size() >= 3) {
+            System.out.println("Cannot have more than 3 active microloans at a time.");
+            database.SaveExistingCustomer(customer);
+            return "FAIL";
+        }
+
+        // Find active loaner with enough money in their Main account
+        String loanerId = this.database.findEligibleLoaner(amount);
+        if (loanerId == null) {
+            database.SaveExistingCustomer(customer);
+            return "FAIL";
+        }
+
+        Customer loaner = database.LoadCustomerReadWrite(loanerId);
+        Account fromAccount = loaner.getAccount("Main");
+
+        // Transfer money from loaner to requester
+        if (!fromAccount.removeMoney(amount)) {
+            database.SaveExistingCustomer(customer);
+            database.SaveExistingCustomer(loaner);
+            return "FAIL";
+        }
+        toAccount.addMoney(amount);
+
+        // Add microloan data to microloans file
+        int loanPeriod = 10;
+        double interestRate = 0.05;
+        microloans.add(new Microloan(loanerId, customerId.getKey(), LocalDateTime.now(), amount, loanPeriod, interestRate));
+
+        database.SaveMicroloans(microloans);
+
+        database.SaveExistingCustomer(customer);
+        database.SaveExistingCustomer(loaner);
+        return "SUCCESS";
+
+    }
+
+    /**
+     * This function should be executed periodically to pay back microloans which are due and
+     * update it to a historical database
+     */
+    public void updateMicroloans() {
+        System.out.println("Updating Microloans...");
+        ArrayList<Microloan> allMicroloans = database.GetAllActiveMicroloans();
+        ArrayList<Microloan> returnedMicroloans = new ArrayList();
+        Iterator<Microloan> microloanIterator = allMicroloans.iterator();
+
+        while (microloanIterator.hasNext()){
+            Microloan microloan = microloanIterator.next();
+
+            if (microloan.isExpired()) {
+                //Get the amount (getAmount*getInterestRate)
+                double amountDue = microloan.getAmountDue();
+                // Get the details of the loaner and the customer
+                Customer borrower = database.LoadCustomerReadWrite(microloan.getTarget());
+                Account fromAccount = borrower.getAccount("Main");
+
+                Customer loaner = database.LoadCustomerReadWrite(microloan.getSource());
+                Account toAccount = loaner.getAccount("Main");
+
+                // Return the amount loaned from customer to loaner
+                if (!fromAccount.removeLoan(amountDue)) {
+                    database.SaveExistingCustomer(borrower);
+                    database.SaveExistingCustomer(loaner);
+                    return;
+                }
+                toAccount.addMoney(amountDue);
+                //Remove paid back microloan
+                microloanIterator.remove();
+                //Save to add historical microloans
+                returnedMicroloans.add(microloan);
+                //Saves updates to customers
+                database.SaveExistingCustomer(borrower);
+                database.SaveExistingCustomer(loaner);
+            }
+        }
+        //Save active and historical microloans to appropriate databases
+        database.SaveMicroloans(allMicroloans);
+        database.AddHistoricalMicroloans(returnedMicroloans);
+
     }
 }

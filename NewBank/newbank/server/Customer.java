@@ -10,6 +10,7 @@ public class Customer {
 
     private ArrayList<Account> accounts;
     private LinkedList<Transaction> transactionHistory = new LinkedList<>();
+    private ArrayList<Microloan> microloans = new ArrayList<>();
 
 
     private String name = "";

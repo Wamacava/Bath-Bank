@@ -84,6 +84,9 @@ public class NewBankClientHandler extends Thread {
                 + "\n\tMOVE <Amount> <From> <To>"
                 + "\n\tPAY <Name> <Amount>"
                 + "\n\tSHOWTRANSACTIONHISTORY"
+                + "\n\tSUBSCRIBETOMICROLOAN"
+                + "\n\tUNSUBSCRIBETOMICROLOAN"
+                + "\n\tREQUESTLOAN <Amount>"
                 + "\n\tLOGOUT"
                 + "\nWhat do you want to do?");
         RequestResult result;

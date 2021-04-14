@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Timer;
 
 public class NewBankServer extends Thread {
 
@@ -37,8 +38,21 @@ public class NewBankServer extends Thread {
         }
     }
 
-    public static void main(String[] args) throws IOException {
-        // starts a new NewBankServer thread on a specified port number
-        new NewBankServer(14002).start();
+    public void startMicroLoanUpdater() {
+        // And From your main() method or any other method
+        Timer timer = new Timer();
+        int updatePeriodMs = 300000;
+        MicroLoanUpdater microLoanUpdater = new MicroLoanUpdater();
+        timer.schedule(microLoanUpdater, 0, updatePeriodMs);
     }
+
+    public static void main(String[] args) throws IOException, InterruptedException {
+        // starts a new NewBankServer thread on a specified port number
+        NewBankServer nbs = new NewBankServer(14002);
+        nbs.start();
+        nbs.startMicroLoanUpdater();
+    }
+
+
 }
+

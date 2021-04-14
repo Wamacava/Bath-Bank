@@ -77,6 +77,19 @@ public class Account {
         return false;
     }
 
+    /**
+     * This function allows the account to go into negative when removing the loan
+     * @param amount
+     * @return
+     */
+    public boolean removeLoan(double amount) {
+        if (amount <= 0) {
+            return false;
+        }
+        this.currentBalance -= amount;
+        return true;
+    }
+
     public LocalDate getOpeningDate() {
         return openingDate;
     }

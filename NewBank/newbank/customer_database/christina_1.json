@@ -1,19 +1,20 @@
 {
   "Transactions":[
     {
-      "IsIncoming":true,
-      "Amount":200.0,
+      "IsIncoming":false,
+      "Amount":100.0,
       "CustomerInvolved":"john_1",
       "Date":"2021-04-05"
     },
     {
-      "IsIncoming":false,
-      "Amount":100.0,
+      "IsIncoming":true,
+      "Amount":200.0,
       "CustomerInvolved":"john_1",
       "Date":"2021-04-05"
     }
   ],
   "IsAdmin":false,
+  "IsActiveLoaner":false,
   "IsVerified":false,
   "IsActiveLoaner":false,
   "Surname":"Smith",
